@@ -3,5 +3,5 @@
 .env/*
 .ipynb_checkpoints
 .DS_Store
-.pth
-*.p
+*.pth
+*.*p
