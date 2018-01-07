@@ -5,7 +5,7 @@ import torch.nn as nn
 Description for creating Sequential:
 from same directory as base_model.py/.pth:
 	import base_model
-	model = base_model.base_model #Be careful, layers are named by indices!
+	model = base_model.base_model #Be careful, layers are named by indices from 0 to 30!
 '''
 
 base_model = nn.Sequential( # Sequential,
