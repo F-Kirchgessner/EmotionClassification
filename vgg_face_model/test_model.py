@@ -1,11 +1,14 @@
 import torch
 import torch.nn as nn
+import torch.legacy.nn as lnn
 
+from functools import reduce
+from torch.autograd import Variable
 '''
 Description for creating Sequential:
 from same directory as test_model.py/.pth:
 	import test_model
-	model = test_model.test_model #Be careful, layers are named by indices starting with 31!
+	model = test_model.test_model #Be careful, layers are named by indices from 0 to 8!
 '''
 
 class LambdaBase(nn.Sequential):
