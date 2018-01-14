@@ -52,17 +52,7 @@ class ClassificationCNN(nn.Module):
         - x: PyTorch input Variable
         """
 
-        ########################################################################
-        # TODO: Chain our previously initialized fully-connected neural        #
-        # network layers to resemble the architecture drafted in the class     #
-        # docstring. Have a look at the Variable.view function to make the     #
-        # transition from the spatial input image to the flat fully connected  #
-        # layers.                                                              #
-        ########################################################################
-        x = net.forward(x)
-        ########################################################################
-        #                             END OF YOUR CODE                         #
-        ########################################################################
+        x = self.net.forward(x)
 
         return x
 
