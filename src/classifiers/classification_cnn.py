@@ -2,6 +2,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import vgg_face_model.VGG_FACE
 
 
 class ClassificationCNN(nn.Module):
@@ -37,34 +38,10 @@ class ClassificationCNN(nn.Module):
         super(ClassificationCNN, self).__init__()
         channels, height, width = input_dim
 
-        ########################################################################
-        # TODO: Initialize the necessary trainable layers to resemble the      #
-        # ClassificationCNN architecture  from the class docstring.            #
-        #                                                                      #
-        # In- and output features should not be hard coded which demands some  #
-        # calculations especially for the input of the first fully             #
-        # convolutional layer.                                                 #
-        #                                                                      #
-        # The convolution should use "same" padding which can be derived from  #
-        # the kernel size and its weights should be scaled. Layers should have #
-        # a bias if possible.                                                  #
-        #                                                                      #
-        # Note: Avoid using any of PyTorch's random functions or your output   #
-        # will not coincide with the Jupyter notebook cell.                    #
-        ########################################################################
-        self.m_pool = nn.MaxPool2d(pool, stride_pool)
-        self.m_dropout = dropout
-        padding = int((kernel_size - 1) / 2)
-        self.conv1 = nn.Conv2d(channels, num_filters, kernel_size, stride_conv, padding)
-        self.conv1.weight.data.mul_(weight_scale)
+        self.net = vgg_face_model.VGG_FACE.VGG_FACE
+        self.net.load_state_dict(torch.load('vgg_face_model/VGG_FACE.pth'))
+        self.net.eval()
 
-        widthOut = int((width - kernel_size + 2 * padding) / stride_conv) + 1
-        heightOut = int((height - kernel_size + 2 * padding) / stride_conv) + 1
-        self.fc1 = nn.Linear(int(widthOut / 2) * int(heightOut / 2) * num_filters, hidden_dim)
-        self.fc2 = nn.Linear(hidden_dim, num_classes)
-        ############################################################################
-        #                             END OF YOUR CODE                             #
-        ############################################################################
 
     def forward(self, x):
         """
@@ -82,10 +59,7 @@ class ClassificationCNN(nn.Module):
         # transition from the spatial input image to the flat fully connected  #
         # layers.                                                              #
         ########################################################################
-        x = self.m_pool(F.relu(self.conv1(x)))
-        x = x.view(-1, self.num_flat_features(x))
-        x = F.relu(F.dropout(self.fc1(x), self.m_dropout))
-        x = self.fc2(x)
+        x = net.forward(x)
         ########################################################################
         #                             END OF YOUR CODE                         #
         ########################################################################

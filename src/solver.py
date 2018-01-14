@@ -1,5 +1,7 @@
 from random import shuffle
+from webcam import takeSingleImage
 import numpy as np
+import cv2
 
 import torch
 from torch.autograd import Variable
@@ -41,6 +43,7 @@ class Solver(object):
         - num_epochs: total number of training epochs
         - log_nth: log training accuracy and loss every nth iteration
         """
+        print ("test1")
         optim = self.optim(model.parameters(), **self.optim_args)
         criterion = torch.nn.CrossEntropyLoss()
         self._reset_histories()
@@ -71,7 +74,7 @@ class Solver(object):
         #   ...                                                                #
         ########################################################################
         num_iterations = num_epochs * iter_per_epoch
-
+        print("test2")
         for epoch in range(num_epochs):
             correct = 0
             total = 0
@@ -81,6 +84,13 @@ class Solver(object):
 
                 # wrap them in Variable
                 inputs, labels = Variable(inputs), Variable(labels.type(torch.LongTensor))
+
+                pic = cv2.imread('vgg_face_model/candice.png')
+                pic = pic[np.newaxis,:,:,:]
+                x = Variable(torch.Tensor(pic))
+                x = x.permute(0,3,1,2)
+
+                print(x)
 
                 if model.is_cuda:
                     inputs = inputs.cuda()
