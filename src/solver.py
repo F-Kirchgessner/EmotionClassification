@@ -1,5 +1,6 @@
 from random import shuffle
 import numpy as np
+import cv2
 
 import torch
 from torch.autograd import Variable
@@ -41,6 +42,7 @@ class Solver(object):
         - num_epochs: total number of training epochs
         - log_nth: log training accuracy and loss every nth iteration
         """
+
         optim = self.optim(model.parameters(), **self.optim_args)
         criterion = torch.nn.CrossEntropyLoss()
         self._reset_histories()
@@ -50,26 +52,7 @@ class Solver(object):
             model.cuda()
 
         print('START TRAIN.')
-        ########################################################################
-        # TODO:                                                                #
-        # Write your own personal training method for our solver. In each      #
-        # epoch iter_per_epoch shuffled training batches are processed. The    #
-        # loss for each batch is stored in self.train_loss_history. Every      #
-        # log_nth iteration the loss is logged. After one epoch the training   #
-        # accuracy of the last mini batch is logged and stored in              #
-        # self.train_acc_history. We validate at the end of each epoch, log    #
-        # the result and store the accuracy of the entire validation set in    #
-        # self.val_acc_history.                                                #
-        #                                                                      #
-        # Your logging could like something like:                              #
-        #   ...                                                                #
-        #   [Iteration 700/4800] TRAIN loss: 1.452                             #
-        #   [Iteration 800/4800] TRAIN loss: 1.409                             #
-        #   [Iteration 900/4800] TRAIN loss: 1.374                             #
-        #   [Epoch 1/5] TRAIN acc/loss: 0.560/1.374                            #
-        #   [Epoch 1/5] VAL   acc/loss: 0.539/1.310                            #
-        #   ...                                                                #
-        ########################################################################
+
         num_iterations = num_epochs * iter_per_epoch
 
         for epoch in range(num_epochs):
@@ -81,6 +64,14 @@ class Solver(object):
 
                 # wrap them in Variable
                 inputs, labels = Variable(inputs), Variable(labels.type(torch.LongTensor))
+
+                pic = cv2.imread('vgg_face_model/candice.png')
+                pic = cv2.resize(pic, (200, 200), interpolation = cv2.INTER_LINEAR)
+                pic = pic[np.newaxis,:,:,:]
+                x = Variable(torch.Tensor(pic))
+                x = x.permute(0,3,1,2)
+
+                print(x)
 
                 if model.is_cuda:
                     inputs = inputs.cuda()
