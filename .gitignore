@@ -6,3 +6,4 @@
 VGG_FACE.pth
 test_model.pth
 *.*p
+data/**/*.png

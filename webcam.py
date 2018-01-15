@@ -4,7 +4,7 @@ import dlib
 import numpy as np
 import cnn
 
-def faceAlignment(img, predictor_path = "shape_predictor_5_face_landmarks.dat"):
+def faceAlignment(img, predictor_path = "shape_predictor_68_face_landmarks.dat"):
 	# Load all the models we need: a detector to find the faces, a shape predictor
 	# to find face landmarks so we can precisely localize the face
 	detector = dlib.get_frontal_face_detector()
@@ -53,7 +53,7 @@ def getImage(camera):
 	return im
 	
 	
-def takeSingleImage(cameraPort, adjustmentFrames = 10):
+def takeSingleImage(cameraPort, adjustmentFrames = 30):
 	# Initialize camera
 	camera = cv2.VideoCapture(cameraPort)
 
@@ -82,7 +82,7 @@ def runSingleImage(cameraPort):
 	
 def runRealtimeStream(cameraPort):
 	cv2.namedWindow("Emotion Classification")
-	vc = cv2.VideoCapture(1)
+	vc = cv2.VideoCapture(cameraPort)
 
 	if vc.isOpened(): # try to get the first frame
 		rval, image = vc.read()
@@ -113,7 +113,7 @@ def runRealtimeStream(cameraPort):
 
 
 # Which camera
-cameraPort = 1
+cameraPort = 0
 
 #runSingleImage(cameraPort)
 runRealtimeStream(cameraPort)
