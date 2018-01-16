@@ -6,7 +6,7 @@ import torch.utils.data as data
 from PIL import Image
 
 ABS_PATH = os.path.dirname(os.path.abspath(__file__))
-
+np.random.seed(0) # split dataset the same way every time
 
 def get_CK():
     # load images into one big numpy array and load labels

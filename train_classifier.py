@@ -17,11 +17,11 @@ timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 train_data, val_data = get_CK()
 
-#train_loader = torch.utils.data.DataLoader(train_data, batch_size=50, shuffle=True, num_workers=2)
-#val_loader = torch.utils.data.DataLoader(val_data, batch_size=50, shuffle=False, num_workers=2)
-train_loader = torch.utils.data.DataLoader(
+train_loader = torch.utils.data.DataLoader(train_data, batch_size=15, shuffle=True, num_workers=2)
+val_loader = torch.utils.data.DataLoader(val_data, batch_size=15, shuffle=False, num_workers=2)
+#train_loader = torch.utils.data.DataLoader(
     train_data, batch_size=5, shuffle=False, num_workers=2, sampler=OverfitSampler(50))
-val_loader = torch.utils.data.DataLoader(val_data, batch_size=5, shuffle=False,
+#val_loader = torch.utils.data.DataLoader(val_data, batch_size=5, shuffle=False,
                                          num_workers=2, sampler=OverfitSampler(20))
 
 log_n = 1
