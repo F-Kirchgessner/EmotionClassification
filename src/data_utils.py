@@ -25,7 +25,7 @@ def get_CK():
     images -= np.mean(images, axis=0)
 
     # TODO seperate into training and validation data
-    training_mask = np.sort(np.random.choice(range(labels.shape[0]), 1000, replace=False))
+    training_mask = np.sort(np.random.choice(range(labels.shape[0]), 1100, replace=False))
     validation_mask = np.sort(np.setdiff1d(list(range(labels.shape[0])), training_mask))
 
     # return training and validation data
