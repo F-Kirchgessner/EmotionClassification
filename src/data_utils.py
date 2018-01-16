@@ -6,7 +6,7 @@ import torch.utils.data as data
 from PIL import Image
 
 ABS_PATH = os.path.dirname(os.path.abspath(__file__))
-np.random.seed(0) # split dataset the same way every time
+
 
 def get_CK():
     # load images into one big numpy array and load labels
@@ -24,12 +24,23 @@ def get_CK():
     images /= 255.0
     images -= np.mean(images, axis=0)
 
-    # TODO seperate into training and validation data
+    np.random.seed(0)  # split dataset the same way every time
     training_mask = np.sort(np.random.choice(range(labels.shape[0]), 1100, replace=False))
     validation_mask = np.sort(np.setdiff1d(list(range(labels.shape[0])), training_mask))
 
     # return training and validation data
     return CK_Data(images[training_mask], labels[training_mask]), CK_Data(images[validation_mask], labels[validation_mask])
+
+
+def get_pics():
+    filenames = np.sort(os.listdir(ABS_PATH + '/../data/CK/pics')
+                        )[np.random.choice(range(1100, 1245), 5)]
+    test_pics = np.array([[np.array(Image.open(ABS_PATH + '/../data/CK/pics/' + fname), dtype=np.float64),
+                           np.array(Image.open(ABS_PATH + '/../data/CK/pics/' + fname),
+                                    dtype=np.float64),
+                           np.array(Image.open(ABS_PATH + '/../data/CK/pics/' + fname), dtype=np.float64)]
+                          for fname in filenames])
+    return test_pics, filenames
 
 
 class CK_Data(data.Dataset):
