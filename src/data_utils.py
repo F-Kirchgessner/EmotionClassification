@@ -14,9 +14,8 @@ def get_CK():
     # somehow order the rest of the pics into validation Data
     # return test_data, val_data
 
-    index_labels = np.loadtxt(ABS_PATH + '/../data/CK/labels.csv', delimiter=',')[:, 1]
-    labels = np.zeros((index_labels.shape[0], 8))
-    labels[range(labels.shape[0]), index_labels] = 1
+    labels = np.array(np.loadtxt(ABS_PATH + '/../data/CK/labels.csv',
+                                 delimiter=',')[:, 1], dtype=np.int)
 
     # vgg_face base_model assume three input color channels, try to find more elegant solution than to copy the greyscale image to all three channels
     images = np.array([[np.array(Image.open(ABS_PATH + '/../data/CK/pics/' + fname), dtype=np.float64),

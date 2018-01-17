@@ -17,9 +17,9 @@ class Solver(object):
         optim_args_merged = self.default_adam_args.copy()
         optim_args_merged.update(optim_args)
         self.optim_args = optim_args_merged
-        # filter out frozen grads of base_model for optimizer
         self.optim = optim
-        self.loss_func = loss_func
+        weight = torch.Tensor([0.5, 1, 1, 1, 1, 1, 1, 1])
+        self.loss_func = torch.nn.CrossEntropyLoss(weight=weight)
 
         self._reset_histories()
 
@@ -44,6 +44,7 @@ class Solver(object):
         - log_nth: log training accuracy and loss every nth iteration
         """
 
+        # filter out frozen grads of base_model for optimizer
         optim = self.optim(filter(lambda p: p.requires_grad, model.parameters()), **self.optim_args)
         self._reset_histories()
         iter_per_epoch = len(train_loader)
