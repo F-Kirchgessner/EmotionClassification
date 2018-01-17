@@ -36,7 +36,7 @@ def get_CK():
 def get_pics():
     np.random.seed()
     filenames = np.sort(os.listdir(ABS_PATH + '/../data/CK/pics')
-                        )[np.random.choice(range(1100, 1245), 5)]
+                        )[np.random.choice(range(1245), 5)]
     test_pics = np.array([[np.array(Image.open(ABS_PATH + '/../data/CK/pics/' + fname), dtype=np.float64),
                            np.array(Image.open(ABS_PATH + '/../data/CK/pics/' + fname),
                                     dtype=np.float64),

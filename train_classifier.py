@@ -20,13 +20,13 @@ timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 train_data, val_data = get_CK()
 
-train_loader = torch.utils.data.DataLoader(train_data, batch_size=15, shuffle=True, num_workers=2)
-val_loader = torch.utils.data.DataLoader(val_data, batch_size=15, shuffle=False, num_workers=2)
+train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=True, num_workers=2)
+val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False, num_workers=2)
 # train_loader = torch.utils.data.DataLoader(train_data, batch_size = 5, shuffle = False, num_workers = 2, sampler = OverfitSampler(50))
 # val_loader = torch.utils.data.DataLoader(val_data, batch_size=5, shuffle=False,num_workers=2, sampler=OverfitSampler(20))
 
 log_n = 10
-epochs = 2
+epochs = 10
 
 model = SimpleEmoClassifier(weight_scale=0.0005)
 solver = Solver(optim_args={'lr': 5e-5})
@@ -64,6 +64,7 @@ plt.gcf().clear()
 model.eval()
 test_pics, filenames = get_pics()
 output = model.forward(Variable(torch.Tensor(test_pics).float()).cuda())
+print('0=neutral, 1=anger, 2=contempt, 3=disgust, 4=fear, 5=happy, 6=sadness, 7=surprise')
 print(output.data)
 output = torch.nn.functional.softmax(output).cpu().data.numpy()
 print(output, filenames)
