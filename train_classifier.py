@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import torch
 from torch.autograd import Variable
 
-from src.data_utils import get_CK, OverfitSampler, get_pics
+from src.data_utils import get_Dataset, OverfitSampler, get_pics
 from src.classifiers.simple_emo_classifier import SimpleEmoClassifier
 from src.solver import Solver
 
@@ -14,11 +14,13 @@ import datetime
 import sys
 import os
 
+# path of this file
 ABS_PATH = os.path.dirname(os.path.abspath(__file__)) + '/'
 
+# Year-month-day_Hour-Minute-Second
 timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-train_data, val_data = get_CK()
+train_data, val_data = get_Dataset()
 
 train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=True, num_workers=2)
 val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False, num_workers=2)
@@ -62,9 +64,20 @@ plt.gcf().clear()
 
 # plot examples:
 model.eval()
-test_pics, filenames = get_pics()
+
+# get_pics might not work! If it doesn't, uncomment the old code.
+test_pics = get_pics(train_data, val_data)
 output = model.forward(Variable(torch.Tensor(test_pics).float()).cuda())
 print('0=neutral, 1=anger, 2=contempt, 3=disgust, 4=fear, 5=happy, 6=sadness, 7=surprise')
 print(output.data)
 output = torch.nn.functional.softmax(output).cpu().data.numpy()
-print(output, filenames)
+
+# plot images and write output under them, very unsure!! Better check on this one!
+for i, img in enumerate(test_pics):
+	plt.subplot(2, 1, 2)
+	plt.legend(loc='upper left')
+	plt.title(output[i])
+	plt.imshow(img)
+
+
+
