@@ -19,7 +19,8 @@ class Solver(object):
         self.optim_args = optim_args_merged
         self.optim = optim
         # um den vielen neutralen Bildern entgegenzuwirken
-        weight = torch.Tensor([0.2, 1, 1, 1, 1, 1, 1, 1])
+        weight = torch.Tensor([0.06070826, 0.4, 1.0, 0.30508475, 0.72,
+                               0.26086957, 0.64285714, 0.21686747])
         if torch.cuda.is_available():
             weight = weight.cuda()
         self.loss_func = torch.nn.CrossEntropyLoss(weight=weight)
