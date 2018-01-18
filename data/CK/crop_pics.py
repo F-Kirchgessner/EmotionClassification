@@ -35,6 +35,7 @@ for filename in filenames:
         file_index = int(filename.split('.')[0])
         if i > 0:
             face_output_path = 'pics/%04d_%d.png' % (file_index, i)
+            continue
         else:
             face_output_path = 'pics/%04d.png' % (file_index)
 

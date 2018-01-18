@@ -18,7 +18,12 @@ class Solver(object):
         optim_args_merged.update(optim_args)
         self.optim_args = optim_args_merged
         self.optim = optim
-        self.loss_func = loss_func
+        # um den vielen neutralen Bildern entgegenzuwirken
+        weight = torch.Tensor([0.06070826, 0.4, 1.0, 0.30508475, 0.72,
+                               0.26086957, 0.64285714, 0.21686747])
+        if torch.cuda.is_available():
+            weight = weight.cuda()
+        self.loss_func = torch.nn.CrossEntropyLoss(weight=weight)
 
         self._reset_histories()
 
@@ -43,95 +48,80 @@ class Solver(object):
         - log_nth: log training accuracy and loss every nth iteration
         """
 
-        optim = self.optim(model.parameters(), **self.optim_args)
-        criterion = torch.nn.CrossEntropyLoss()
+        # filter out frozen grads of base_model for optimizer
+        optim = self.optim(filter(lambda p: p.requires_grad, model.parameters()), **self.optim_args)
         self._reset_histories()
         iter_per_epoch = len(train_loader)
 
         if torch.cuda.is_available():
-            model.cuda()
+            model = model.cuda()
 
-        print('START TRAIN.')
-
-        num_iterations = num_epochs * iter_per_epoch
+        if log_nth != 0:
+            print('START TRAIN.')
 
         for epoch in range(num_epochs):
-            correct = 0
-            total = 0
-            for i, data in enumerate(train_loader, 0):
-                # get the inputs
-                inputs, labels = data
+            # TRAINING
 
-                # wrap them in Variable
-                inputs, labels = Variable(inputs), Variable(labels.type(torch.LongTensor))
-
-                pic = cv2.imread('vgg_face_model/candice.png')
-                pic = cv2.resize(pic, (200, 200), interpolation = cv2.INTER_LINEAR)
-                pic = pic[np.newaxis,:,:,:]
-                x = Variable(torch.Tensor(pic))
-                x = x.permute(0,3,1,2)
-
-                print(x)
-
+            for i, (inputs, targets) in enumerate(train_loader, 1):
+                inputs, targets = Variable(inputs.float()), Variable(targets.long())
                 if model.is_cuda:
-                    inputs = inputs.cuda()
-                    labels = labels.cuda()
+                    inputs, targets = inputs.cuda(), targets.cuda()
 
-                # zero the parameter gradients
                 optim.zero_grad()
-
-                # forward + backward + optimize
                 outputs = model(inputs)
-                loss = criterion(outputs, labels)
+                loss = self.loss_func(outputs, targets)
                 loss.backward()
                 optim.step()
 
-                # print statistics
-                if i % 50 == 50 - 1:
-                    self.train_loss_history.append(loss.data[0])
+                self.train_loss_history.append(loss.data.cpu().numpy())
+                if log_nth and i % log_nth == 0:
+                    last_log_nth_losses = self.train_loss_history[-log_nth:]
+                    train_loss = np.mean(last_log_nth_losses)
+                    print('[Iteration %d/%d] TRAIN loss: %.3f' %
+                          (i + epoch * iter_per_epoch,
+                           iter_per_epoch * num_epochs,
+                           train_loss))
 
-                    _, predicted = torch.max(outputs.data, 1)
-                    total += labels.size(0)
-                    correct += torch.sum(predicted == labels.data)
-                    train_acc = 100*correct/total
+            _, preds = torch.max(outputs, 1)
 
-                    self.train_acc_history.append(train_acc)
-
-                    print('[%d, %5d] training:   loss: %.3f,  acc: %.3f' %(epoch + 1, i + 1, loss.data[0], train_acc))
-
-
-            # Validation
-            correctVal = 0
-            totalVal = 0
-            runningLossVal = 0.0
-            for i, data in enumerate(val_loader, 0):
-                # get the inputs
-                inputs, labels = data
-
-                # wrap them in Variable
-                inputs, labels = Variable(inputs), Variable(labels.type(torch.LongTensor))
-
+            # Only allow images/pixels with label >= 0, not relevant in our use case
+            targets_mask = targets >= 0
+            train_acc = np.mean((preds == targets)[targets_mask].data.cpu().numpy())
+            self.train_acc_history.append(train_acc)
+            if log_nth:
+                print('[Epoch %d/%d] TRAIN acc/loss: %.3f/%.3f' % (epoch + 1,
+                                                                   num_epochs,
+                                                                   train_acc,
+                                                                   train_loss))
+            # VALIDATION
+            val_losses = []
+            val_scores = []
+            model.eval()
+            for inputs, targets in val_loader:
+                inputs, targets = Variable(inputs.float()), Variable(targets.long())
                 if model.is_cuda:
-                    inputs = inputs.cuda()
-                    labels = labels.cuda()
+                    inputs, targets = inputs.cuda(), targets.cuda()
 
-                # forward + backward + optimize
-                outputs = model(inputs)
-                loss = criterion(outputs, labels)
-                runningLossVal += loss.data[0]
+                outputs = model.forward(inputs)
+                loss = self.loss_func(outputs, targets)
+                val_losses.append(loss.data.cpu().numpy())
 
-                _, predicted = torch.max(outputs.data, 1)
-                totalVal += labels.size(0)
-                correctVal += torch.sum(predicted == labels.data)
-                trainAccVal = 100*correctVal/totalVal
+                _, preds = torch.max(outputs, 1)
 
-            # print statistics
-            self.val_loss_history.append(runningLossVal)
-            self.val_acc_history.append(trainAccVal)
-            print('[%d, %5d] validation: loss: %.3f, acc: %.3f' %(epoch + 1, i + 1, runningLossVal, trainAccVal))
+                # Only allow images/pixels with target >= 0 e.g. for segmentation
+                targets_mask = targets >= 0
+                scores = np.mean((preds == targets)[targets_mask].data.cpu().numpy())
+                val_scores.append(scores)
 
-            
-        ########################################################################
-        #                             END OF YOUR CODE                         #
-        ########################################################################
-        print('FINISH.')
+            model.train()
+            val_acc, val_loss = np.mean(val_scores), np.mean(val_losses)
+            self.val_acc_history.append(val_acc)
+            self.val_loss_history.append(val_loss)
+            if log_nth:
+                print('[Epoch %d/%d] VAL   acc/loss: %.3f/%.3f' % (epoch + 1,
+                                                                   num_epochs,
+                                                                   val_acc,
+                                                                   val_loss))
+
+        if log_nth != 0:
+            print('FINISH.')

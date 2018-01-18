@@ -1,3 +1,4 @@
+import os
 import torch
 import torch.nn as nn
 import torch.legacy.nn as lnn
@@ -10,6 +11,8 @@ from same directory as base_model.py/.pth:
 	import base_model
 	model = base_model.base_model #Be careful, layers are named by indices from 0 to 30!
 '''
+
+ABS_PATH = os.path.dirname(os.path.abspath(__file__)) + '/'
 
 base_model = nn.Sequential( # Sequential,
 	nn.Conv2d(3,64,(3, 3),(1, 1),(1, 1)),
@@ -44,4 +47,4 @@ base_model = nn.Sequential( # Sequential,
 	nn.ReLU(),
 	nn.MaxPool2d((2, 2),(2, 2),(0, 0),ceil_mode=True)
 	)
-base_model.load_state_dict(torch.load('base_model.pth'))
+base_model.load_state_dict(torch.load(ABS_PATH+'base_model.pth'))

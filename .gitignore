@@ -3,7 +3,6 @@
 .env/*
 .ipynb_checkpoints
 .DS_Store
-VGG_FACE.pth
 test_model.pth
 *.*p
 data/**/*.png
