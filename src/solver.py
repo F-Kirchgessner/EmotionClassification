@@ -13,14 +13,18 @@ class Solver(object):
                          "weight_decay": 0.0}
 
     def __init__(self, optim=torch.optim.Adam, optim_args={},
-                 loss_func=torch.nn.CrossEntropyLoss()):
+                 loss_func=torch.nn.CrossEntropyLoss(), data='CK'):
         optim_args_merged = self.default_adam_args.copy()
         optim_args_merged.update(optim_args)
         self.optim_args = optim_args_merged
         self.optim = optim
         # um den vielen neutralen Bildern entgegenzuwirken
-        weight = torch.Tensor([0.06070826, 0.4, 1.0, 0.30508475, 0.72,
-                               0.26086957, 0.64285714, 0.21686747])
+        if data == 'CK':
+            weight = torch.Tensor([0.06070826, 0.4, 1.0, 0.30508475, 0.72,
+                                   0.26086957, 0.64285714, 0.21686747])
+        elif data == 'ISED':
+            weight = torch.Tensor([0.0,  0.0, 0.0, 0.18691589, 0.0,
+                                   0.53037383, 0.11214953, 0.17056075])
         if torch.cuda.is_available():
             weight = weight.cuda()
         self.loss_func = torch.nn.CrossEntropyLoss(weight=weight)
