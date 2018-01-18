@@ -66,7 +66,7 @@ plt.gcf().clear()
 model.eval()
 
 # get_pics might not work! If it doesn't, uncomment the old code.
-test_pics = get_pics(train_data, val_data)
+test_pics, amount_example_pics = get_pics(train_data, val_data)
 output = model.forward(Variable(torch.Tensor(test_pics).float()).cuda())
 print('0=neutral, 1=anger, 2=contempt, 3=disgust, 4=fear, 5=happy, 6=sadness, 7=surprise')
 print(output.data)
@@ -74,10 +74,9 @@ output = torch.nn.functional.softmax(output).cpu().data.numpy()
 
 # plot images and write output under them, very unsure!! Better check on this one!
 for i, img in enumerate(test_pics):
-	plt.subplot(2, 1, 2)
-	plt.legend(loc='upper left')
-	plt.title(output[i])
-	plt.imshow(img)
+    plt.subplot(amount_example_pics, 1, i + 1)
+    #plt.legend(loc='upper left')
+    plt.title(str(list(output[i])))
+    plt.imshow(img)
 
-
-
+plt.savefig(ABS_PATH + 'output/examples_{}.png'.format(timestamp))

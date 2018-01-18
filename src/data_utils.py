@@ -8,15 +8,17 @@ from PIL import Image
 # path where this file is located
 ABS_PATH = os.path.dirname(os.path.abspath(__file__))
 
+
 def get_Dataset():
-	# combine all existing Datasets get_XY() functions
-	# concatenate CK, ISED
-	CK_train, CK_val = get_Some_Dataset('CK', 1100)
-	ISED_train, ISED_val = get_Some_Dataset('ISED', 350)
-	dataset_train = data.ConcatDataset(CK_train, ISED_train)
-	dataset_val = data.ConcatDataset(CK_val, ISED_val)
-	
-	return dataset_train, dataset_val	
+    # combine all existing Datasets get_XY() functions
+    # concatenate CK, ISED
+    CK_train, CK_val = get_Some_Dataset('CK', 1100)
+    ISED_train, ISED_val = get_Some_Dataset('ISED', 350)
+    dataset_train = data.ConcatDataset(CK_train, ISED_train)
+    dataset_val = data.ConcatDataset(CK_val, ISED_val)
+
+    return dataset_train, dataset_val
+
 
 def get_Some_Dataset(DataSetName, numberOfTrainPics):
     # load images into one big numpy array and load labels
@@ -24,8 +26,7 @@ def get_Some_Dataset(DataSetName, numberOfTrainPics):
     # somehow order the rest of the pics into validation Data
     # return test_data, val_data
 
-    labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s/labels.csv' % DataSetName,
-                                 delimiter=',')[:, 1], dtype=np.int)
+    labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s/labels.csv' % DataSetName, delimiter=',')[:, 1], dtype=np.int)
 
     # vgg_face base_model assume three input color channels, try to find more elegant solution than to copy the greyscale image to all three channels
     images = np.array([[np.array(Image.open(ABS_PATH + '/../data/%s/pics/' % DataSetName + fname), dtype=np.float64),
@@ -45,11 +46,11 @@ def get_Some_Dataset(DataSetName, numberOfTrainPics):
 
 # Try make get_pics(Data()) more general! Maybe this doesn't work!!
 def get_pics(train_data, val_data):
-	random_set = data.sampler.RandomSampler(data.ConcatDataset(train_data, val_data))
-	return random_set.__getitem__(np.array(range(5)))[0]
-	
-	
-	'''
+    amount_example_pics = 5
+    random_set = data.sampler.RandomSampler(data.ConcatDataset(train_data, val_data))
+    return random_set.__getitem__(np.array(range(amount_example_pics)))[0], amount_example_pics
+
+    '''
 	np.random.seed()
 
 	# choose 5 random pics
@@ -60,8 +61,9 @@ def get_pics(train_data, val_data):
                                     dtype=np.float64),
                            np.array(Image.open(ABS_PATH + '/../data/CK/pics/' + fname), dtype=np.float64)]
                           for fname in filenames])
-    return test_pics, filenames
+    return test_pics, filenames, amount_example_pics
 	'''
+
 
 class Data(data.Dataset):
 

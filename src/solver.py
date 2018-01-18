@@ -18,13 +18,10 @@ class Solver(object):
         optim_args_merged.update(optim_args)
         self.optim_args = optim_args_merged
         self.optim = optim
-        # um den vielen neutralen Bildern entgegenzuwirken
-        if data == 'CK':
-            weight = torch.Tensor([0.06070826, 0.4, 1.0, 0.30508475, 0.72,
-                                   0.26086957, 0.64285714, 0.21686747])
-        elif data == 'ISED':
-            weight = torch.Tensor([0.0,  0.0, 0.0, 0.18691589, 0.0,
-                                   0.53037383, 0.11214953, 0.17056075])
+        # one weight that correspends for unequal amount of emotion labels in CK+ISED datasets
+        # weight for one emotion is small if we have a lot of pictures with that emotion label
+        # 0=neutral, 1=anger, 2=contempt, 3=disgust, 4=fear, 5=happy, 6=sadness, 7=surprise
+        weight = np.array([0.06070826, 0.4, 1.0, 0.18181818, 0.72, 0.09863014, 0.34615385, 0.15062762])
         if torch.cuda.is_available():
             weight = weight.cuda()
         self.loss_func = torch.nn.CrossEntropyLoss(weight=weight)
