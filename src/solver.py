@@ -21,7 +21,7 @@ class Solver(object):
         # one weight that correspends for unequal amount of emotion labels in CK+ISED datasets
         # weight for one emotion is small if we have a lot of pictures with that emotion label
         # 0=neutral, 1=anger, 2=contempt, 3=disgust, 4=fear, 5=happy, 6=sadness, 7=surprise
-        weight = np.array([0.06070826, 0.4, 1.0, 0.18181818, 0.72, 0.09863014, 0.34615385, 0.15062762])
+        weight = torch.Tensor(np.array([0.05, 0.45, 1.3, 0.19, 0.75, 0.09, 0.35, 0.15]))
         if torch.cuda.is_available():
             weight = weight.cuda()
         self.loss_func = torch.nn.CrossEntropyLoss(weight=weight)
