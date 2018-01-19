@@ -23,7 +23,7 @@ class Solver(object):
         # 0=neutral, 1=anger, 2=contempt, 3=disgust, 4=fear, 5=happy, 6=sadness, 7=surprise
         weight = torch.Tensor(np.array([0.05, 0.45, 1.3, 0.19, 0.75, 0.09, 0.35, 0.15]))
         if torch.cuda.is_available():
-            weight = weight.cuda()
+            weight = torch.FloatTensor(weight).cuda()
         self.loss_func = torch.nn.CrossEntropyLoss(weight=weight)
 
         self._reset_histories()
@@ -62,6 +62,7 @@ class Solver(object):
 
         for epoch in range(num_epochs):
             # TRAINING
+            train_loss = 0
 
             for i, (inputs, targets) in enumerate(train_loader, 1):
                 inputs, targets = Variable(inputs.float()), Variable(targets.long())
