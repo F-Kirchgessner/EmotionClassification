@@ -48,7 +48,7 @@ def get_Some_Dataset(DataSetName, numberOfTrainPics):
 def get_pics(train_data, val_data):
     amount_example_pics = 5
 
-    # throws: 'RandomSampler' object has no attribute '__getitem__'
+    # throws error: 'RandomSampler' object has no attribute '__getitem__'
     #sample_dataset = data.sampler.RandomSampler(data.ConcatDataset([train_data, val_data]))
     # return random_set.__getitem__(np.array(range(amount_example_pics)))[0], amount_example_pics
 
