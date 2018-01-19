@@ -6,3 +6,10 @@
 test_model.pth
 *.*p
 data/**/*.png
+/data/JAFFE
+/datasets
+/models
+/output
+/vgg_face_model
+/all_scalars.json
+/demo.py

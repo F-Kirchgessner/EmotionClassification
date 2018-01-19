@@ -71,17 +71,22 @@ def train():
     model.eval()
 
     # get_pics might not work! If it doesn't, uncomment the old code.
-    test_pics, amount_example_pics = get_pics(train_data, val_data)
+    test_pics, example_labels, filenames, amount_example_pics = get_pics(train_data, val_data)
     output = model.forward(Variable(torch.Tensor(test_pics).float()).cuda())
+    emotions = {0: 'neutral', 1: 'anger', 2: 'contempt', 3: 'disgust', 4: 'fear', 5: 'happy', 6: 'sadness', 7: 'surprise'}
     print('0=neutral, 1=anger, 2=contempt, 3=disgust, 4=fear, 5=happy, 6=sadness, 7=surprise')
     print(output.data)
+    print(example_labels)
     output = torch.nn.functional.softmax(output).cpu().data.numpy()
 
     # plot images and write output under them, very unsure!! Better check on this one!
-    for i, img in enumerate(test_pics):
+    for i in range(amount_example_pics):
         plt.subplot(amount_example_pics, 1, i + 1)
         #plt.legend(loc='upper left')
-        plt.title(str(list(output[i])))
-        plt.imshow(img)
+        plt.title('%s: Truth=%s, N=%.2e, A=%.2e, C=%.2e, D=%.2e, F=%.2e, H=%.2e, Sad=%.2e, Sur=%.2e' % (filenames[i], emotions[example_labels[i]], list(output[i])[0], list(output[i])[1], list(
+            output[i])[2], list(output[i])[3], list(output[i])[4], list(output[i])[5], list(output[i])[6], list(output[i])[7]))
+        plt.imshow(test_pics[i][0])
 
+    plt.tight_layout()
     plt.savefig(ABS_PATH + 'output/examples_{}.png'.format(timestamp))
+    plt.gcf().clear()
