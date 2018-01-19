@@ -6,3 +6,4 @@
 test_model.pth
 *.*p
 data/**/*.png
+data/**/*.jpg
