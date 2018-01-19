@@ -7,3 +7,11 @@ test_model.pth
 *.*p
 data/**/*.png
 data/**/*.jpg
+/data/JAFFE
+/datasets
+/models
+/output
+/vgg_face_model
+/demo.py
+/all_scalars.json
+/landmark_detector.py

@@ -24,6 +24,8 @@ def train():
     # Year-month-day_Hour-Minute-Second
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
+    print("Loading data...")
+
     train_data, val_data = get_Dataset()
 
     train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=True, num_workers=2)
