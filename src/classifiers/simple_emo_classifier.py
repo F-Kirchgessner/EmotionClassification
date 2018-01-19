@@ -24,9 +24,9 @@ class SimpleEmoClassifier(nn.Module):
             param.requires_grad = False
 
         #self.fc1 = nn.Linear(32768, 8, bias=True)
-        self.fc1 = nn.Linear(33176, 5000, bias=True)
-        self.fc2 = nn.Linear(5000, 8, bias=True)
-        nn.init.normal(self.fc1.weight.data, std=weight_scale)
+        self.fc1 = nn.Linear(32904, 500)
+        self.fc2 = nn.Linear(500, 8, bias=True)
+
         nn.init.normal(self.fc2.weight.data, std=weight_scale)
 
     def forward(self, x):
@@ -34,21 +34,21 @@ class SimpleEmoClassifier(nn.Module):
         points = []
         for i in range(len(x)):
             points.append([])
-            for j in range(len(x[i])):
-                shape = predictor((x[i][j].cpu().data.numpy() * 255).astype(np.uint8), dlib.rectangle(left=0, top=0, right=256, bottom=256))
-                for p in range(68):
-                    points[i].append(shape.part(p).x)
-                    points[i].append(shape.part(p).y)
-        #print(np.append(x, points, axis=1))
+            shape = predictor((x[i][0].cpu().data.numpy() * 255).astype(np.uint8), dlib.rectangle(left=0, top=0, right=256, bottom=256))
+            for p in range(68):
+                points[i].append(shape.part(p).x)
+                points[i].append(shape.part(p).y)
 
-        x.data = x.data.float()
         x = self.base.forward(x)
         x.data = x.data.float()
         x = x.view(x.size(0), -1)
 
-        x.data = torch.FloatTensor(np.append(x.cpu().data.numpy(), np.asarray(points), axis=1))
-        x = x.cuda()
-        return self.fc2(self.fc1(x))
+        x = torch.cat((x, torch.FloatTensor(points).cuda()), 1)
+
+        x = self.fc1(x)
+        x = self.fc2(x)
+
+        return x
 
     @property
     def is_cuda(self):
