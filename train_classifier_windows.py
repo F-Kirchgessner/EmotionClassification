@@ -24,6 +24,7 @@ def train():
     # Year-month-day_Hour-Minute-Second
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
+    print("Loading data...")
     train_data, val_data = get_Dataset()
 
     train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=True, num_workers=2)
@@ -32,7 +33,7 @@ def train():
     # val_loader = torch.utils.data.DataLoader(val_data, batch_size=5, shuffle=False,num_workers=2, sampler=OverfitSampler(20))
 
     log_n = 10
-    epochs = 15
+    epochs = 10
 
     model = SimpleEmoClassifier(weight_scale=0.0005)
     solver = Solver(optim_args={'lr': 5e-5})
@@ -48,7 +49,7 @@ def train():
     x = np.linspace(0, len(solver.train_loss_history), len(solver.val_loss_history))
     plt.plot(x, solver.val_loss_history, '-o', label='val_loss')
     plt.legend(loc='upper right')
-    plt.title('Training vs Validation loss | %d Epochs' % epochs)
+    plt.title('Training vs Validation loss')
     plt.xlabel('iteration')
     plt.ylabel('loss')
 
@@ -70,22 +71,18 @@ def train():
     model.eval()
 
     # get_pics might not work! If it doesn't, uncomment the old code.
-    test_pics, example_labels, filenames, amount_example_pics = get_pics(train_data, val_data)
+    test_pics, amount_example_pics = get_pics(train_data, val_data)
     output = model.forward(Variable(torch.Tensor(test_pics).float()).cuda())
-    emotions = {0: 'neutral', 1: 'anger', 2: 'contempt', 3: 'disgust', 4: 'fear', 5: 'happy', 6: 'sadness', 7: 'surprise'}
     print('0=neutral, 1=anger, 2=contempt, 3=disgust, 4=fear, 5=happy, 6=sadness, 7=surprise')
     print(output.data)
-    print(example_labels)
     output = torch.nn.functional.softmax(output).cpu().data.numpy()
 
     # plot images and write output under them, very unsure!! Better check on this one!
-    for i in range(amount_example_pics):
+    for i, img in enumerate(test_pics):
         plt.subplot(amount_example_pics, 1, i + 1)
         #plt.legend(loc='upper left')
-        plt.title('%s: Truth=%s, N=%.2e, A=%.2e, C=%.2e, D=%.2e, F=%.2e, H=%.2e, Sad=%.2e, Sur=%.2e' % (filenames[i], emotions[example_labels[i]], list(output[i])[0], list(output[i])[1], list(
-            output[i])[2], list(output[i])[3], list(output[i])[4], list(output[i])[5], list(output[i])[6], list(output[i])[7]))
-        plt.imshow(test_pics[i][0])
+        plt.title(str(list(output[i])))
+        plt.imshow(img)
 
-    plt.tight_layout()
     plt.savefig(ABS_PATH + 'output/examples_{}.png'.format(timestamp))
-    plt.gcf().clear()
+
