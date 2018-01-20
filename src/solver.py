@@ -113,7 +113,7 @@ class Solver(object):
             train_acc = np.mean((preds == targets)[targets_mask].data.cpu().numpy())
             self.train_acc_history.append(train_acc)
             if useTensorboard:
-                self.writer.add_scalar('Training accuracy', train_acc, (epoch + 1) * iter_per_epoch)
+                self.writer.add_scalar('Training accuracy', train_acc, epoch + 1)
             if log_nth:
                 print('[Epoch %d/%d] TRAIN acc/loss: %.3f/%.3f' % (epoch + 1,
                                                                    num_epochs,
@@ -157,7 +157,12 @@ class Solver(object):
             self.val_loss_history.append(val_loss)
             if useTensorboard:
                 self.writer.add_scalar('Validation loss', val_loss, (epoch + 1) * iter_per_epoch)
-                self.writer.add_scalar('Validation accuracy', val_acc, (epoch + 1) * iter_per_epoch)
+                self.writer.add_scalar('Validation accuracy', val_acc, epoch + 1)
+
+                for name, param in model.named_parameters():
+                    if not "base" in name:
+                        self.writer.add_histogram(name, param, epoch + 1)
+
             if log_nth:
                 print('[Epoch %d/%d] VAL   acc/loss: %.3f/%.3f' % (epoch + 1,
                                                                    num_epochs,

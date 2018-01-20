@@ -24,6 +24,7 @@ class SimpleEmoClassifier(nn.Module):
             param.requires_grad = False
 
         #self.fc1 = nn.Linear(32768, 8, bias=True)
+        #self.fc1 = nn.Linear(32768, 500)
         self.fc1 = nn.Linear(32904, 500)
         self.fc2 = nn.Linear(500, 8, bias=True)
 

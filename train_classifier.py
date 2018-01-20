@@ -14,9 +14,6 @@ import datetime
 import sys
 import os
 
-if __name__ == "__main__":
-    train()
-
 def train():
     # path of this file
     ABS_PATH = os.path.dirname(os.path.abspath(__file__)) + '/'
@@ -28,13 +25,13 @@ def train():
 
     train_data, val_data = get_Dataset()
 
-    train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=True, num_workers=2)
-    val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False, num_workers=2)
+    train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=True, num_workers=0)
+    val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False, num_workers=0)
     # train_loader = torch.utils.data.DataLoader(train_data, batch_size = 5, shuffle = False, num_workers = 2, sampler = OverfitSampler(50))
     # val_loader = torch.utils.data.DataLoader(val_data, batch_size=5, shuffle=False,num_workers=2, sampler=OverfitSampler(20))
 
     log_n = 10
-    epochs = 50
+    epochs = 100
 
     model = SimpleEmoClassifier(weight_scale=0.0005)
     solver = Solver(optim_args={'lr': 5e-5})
@@ -44,6 +41,11 @@ def train():
     m, s = divmod(temp_time, 60)
     h, m = divmod(m, 60)
     print('Done after %dh%02dmin%02ds' % (h, m, s))
+
+    # Save model
+    current_time = datetime.now().strftime('%b%d_%H-%M-%S')
+    log_dir = os.path.join('models', current_time)
+    model.save("models/model_{}.png".format(timestamp))
 
     plt.subplot(2, 1, 1)
     plt.plot(solver.train_loss_history, '-', label='train_loss')
@@ -91,3 +93,7 @@ def train():
     plt.tight_layout()
     plt.savefig(ABS_PATH + 'output/examples_{}.png'.format(timestamp))
     plt.gcf().clear()
+
+
+if __name__ == "__main__":
+    train()
