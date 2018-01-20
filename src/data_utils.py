@@ -13,11 +13,11 @@ def get_Dataset():
     # combine all existing Datasets get_XY() functions
     # concatenate CK, ISED
     CK_train, CK_val = get_Some_Dataset('CK', 1100)
-    #ISED_train, ISED_val = get_Some_Dataset('ISED', 350)
-    #dataset_train = data.ConcatDataset([CK_train, ISED_train])
-    #dataset_val = data.ConcatDataset([CK_val, ISED_val])
+    ISED_train, ISED_val = get_Some_Dataset('ISED', 350)
+    dataset_train = data.ConcatDataset([CK_train, ISED_train])
+    dataset_val = data.ConcatDataset([CK_val, ISED_val])
 
-    return CK_train, CK_val
+    return dataset_train, dataset_val
 
 
 def get_Some_Dataset(DataSetName, numberOfTrainPics):
