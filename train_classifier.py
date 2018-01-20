@@ -7,6 +7,7 @@ from torch.autograd import Variable
 
 from src.data_utils import get_Dataset, OverfitSampler, get_pics
 from src.classifiers.simple_emo_classifier import SimpleEmoClassifier
+from src.classifiers.landmark_emo_classifier import LandmarkEmoClassifier
 from src.solver import Solver
 
 import time
@@ -43,8 +44,6 @@ def train():
     print('Done after %dh%02dmin%02ds' % (h, m, s))
 
     # Save model
-    current_time = datetime.now().strftime('%b%d_%H-%M-%S')
-    log_dir = os.path.join('models', current_time)
     model.save("models/model_{}.png".format(timestamp))
 
     plt.subplot(2, 1, 1)
