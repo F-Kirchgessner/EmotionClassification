@@ -60,7 +60,7 @@ def takeSingleImage(cameraPort, adjustmentFrames=30):
     return image
     
 
-def runSingleImage(cameraPort, modelPath, predictorPath, emotions):
+def runSingleImage(cameraPort, modelPath, predictorPath):
     # Preload
     model = torch.load(modelPath)
     model.eval()
@@ -77,7 +77,7 @@ def runSingleImage(cameraPort, modelPath, predictorPath, emotions):
     cv2.waitKey(0)
     
     
-def runRealtimeStream(cameraPort, modelPath, predictorPath, emotions):
+def runRealtimeStream(cameraPort, modelPath, predictorPath):
     # Preload
     model = None
     try:
@@ -103,8 +103,10 @@ def runRealtimeStream(cameraPort, modelPath, predictorPath, emotions):
             
             # Add rectangle and text
             cv2.rectangle(image, frames[0][0], frames[0][1], (1, 1, 255))
-            text = "%s" % (emotions[results[0][0]])
-            cv2.putText(image, text, (frames[0][1][0], frames[0][0][1] + 25), 0, 1, (1, 1, 255))
+            text = createDisplayText(results)
+            cv2.putText(image, text[0], (frames[0][1][0], frames[0][0][1] + 25), 0, 0.7, (1, 1, 255))
+            cv2.putText(image, text[1], (frames[0][1][0], frames[0][0][1] + 45), 0, 0.7, (1, 1, 255))
+            cv2.putText(image, text[2], (frames[0][1][0], frames[0][0][1] + 65), 0, 0.7, (1, 1, 255))
             
         cv2.imshow("Emotion Classification", image)
         
@@ -116,6 +118,18 @@ def runRealtimeStream(cameraPort, modelPath, predictorPath, emotions):
     cv2.destroyWindow("Emotion Classification")
 
 
+def createDisplayText(results):
+    emotions = {0: 'neutral', 1: 'anger', 2: 'contempt', 3: 'disgust', 4: 'fear', 5: 'happy', 6: 'sadness', 7: 'surprise'}
+    totalScore = sum([res[1] for res in results])
+    text = []
+
+    text.append("%s: %0.1f%%" %(emotions[results[0][0]], (results[0][1] / totalScore) * 100))
+    text.append("%s: %0.1f%%" %(emotions[results[1][0]], (results[1][1] / totalScore) * 100))
+    text.append("%s: %0.1f%%" %(emotions[results[2][0]], (results[2][1] / totalScore) * 100))
+    
+    return text
+
+
 def runCNN(img, model):
     img = img[np.newaxis,:,:,:]
     img = Variable(torch.Tensor(img))
@@ -123,10 +137,13 @@ def runCNN(img, model):
     
     out = model.forward(img).data.numpy()
 
-    #Get Top 5
-    results = np.argsort(-out)[:,:5]
-    print(results)
-    print(-np.sort(-out)[:,:5])
+    #Get results
+    emotions = np.argsort(-out)[0]
+    percentages = -np.sort(-out)[0]
+    results = []
+
+    for i in range(len(emotions)):
+        results.append((emotions[i], percentages[i] - percentages[-1]))
     
     return results
 
@@ -136,10 +153,9 @@ if __name__ == "__main__":
     cameraPort = 1
     modelPath = "models/Basic_300.model"
     predictorPath = "data/shape_predictor_68_face_landmarks.dat"
-    emotions = {0: 'neutral', 1: 'anger', 2: 'contempt', 3: 'disgust', 4: 'fear', 5: 'happy', 6: 'sadness', 7: 'surprise'}
 
     #runSingleImage(cameraPort, modelPath, predictorPath, emotions)
-    runRealtimeStream(cameraPort, modelPath, predictorPath, emotions)
+    runRealtimeStream(cameraPort, modelPath, predictorPath)
 
 
 
