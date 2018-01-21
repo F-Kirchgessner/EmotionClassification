@@ -13,6 +13,10 @@ predictor_path = "../shape_predictor_68_face_landmarks.dat"
 detector = dlib.get_frontal_face_detector()
 sp = dlib.shape_predictor(predictor_path)
 
+#check for pics directory 
+if os.path.exists('pics/') != True:
+    os.mkdir('pics/')
+
 filenames = list(os.listdir('Bilder/'))
 for filename in filenames:
     face_input_path = 'Bilder/' + filename
@@ -31,6 +35,7 @@ for filename in filenames:
         file_index = int(filename.split('.')[0])
         if i > 0:
             face_output_path = 'pics/%04d_%d.png' % (file_index, i)
+            continue
         else:
             face_output_path = 'pics/%04d.png' % (file_index)
 

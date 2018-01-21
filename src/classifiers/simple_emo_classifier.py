@@ -20,13 +20,22 @@ class SimpleEmoClassifier(nn.Module):
         for param in self.base.parameters():
             param.requires_grad = False
 
-        self.fc1 = nn.Linear(25088, 8, bias=True)
-        nn.init.normal(self.fc1.weight.data, std=weight_scale)
+        self.fc1 = nn.Linear(32768, 300)
+        self.fc2 = nn.Linear(300, 8, bias=True)
+
+        nn.init.normal(self.fc2.weight.data, std=weight_scale)
 
     def forward(self, x):
 
+        x.data = x.data.float()
         x = self.base.forward(x)
-        return self.fc1(x.view(x.size(0), -1))
+        x.data = x.data.float()
+        x = x.view(x.size(0), -1)
+
+        x = self.fc1(x)
+        x = self.fc2(x)
+
+        return x
 
     @property
     def is_cuda(self):
