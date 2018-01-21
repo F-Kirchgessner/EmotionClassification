@@ -32,7 +32,7 @@ def train():
     # val_loader = torch.utils.data.DataLoader(val_data, batch_size=5, shuffle=False,num_workers=2, sampler=OverfitSampler(20))
 
     log_n = 10
-    epochs = 100
+    epochs = 22
 
     model = SimpleEmoClassifier(weight_scale=0.0005)
     solver = Solver(optim_args={'lr': 5e-5})
@@ -44,7 +44,7 @@ def train():
     print('Done after %dh%02dmin%02ds' % (h, m, s))
 
     # Save model
-    model.save("models/model_{}.png".format(timestamp))
+    model.save("models/model_{}.model".format(timestamp))
 
     plt.subplot(2, 1, 1)
     plt.plot(solver.train_loss_history, '-', label='train_loss')

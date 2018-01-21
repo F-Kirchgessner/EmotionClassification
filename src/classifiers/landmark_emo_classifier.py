@@ -17,7 +17,7 @@ import numpy as np
 
 class LandmarkEmoClassifier(nn.Module):
     def __init__(self, weight_scale=0.001):
-        super(SimpleEmoClassifier, self).__init__()
+        super(LandmarkEmoClassifier, self).__init__()
 
         self.base = base_model.base_model
         for param in self.base.parameters():
@@ -25,7 +25,7 @@ class LandmarkEmoClassifier(nn.Module):
 
         #self.fc1 = nn.Linear(32768, 8, bias=True)
         #self.fc1 = nn.Linear(32768, 500)
-        self.fc1 = nn.Linear(32904, 300)
+        self.fc1 = nn.Linear(32904, 100)
         self.fc2 = nn.Linear(300, 8, bias=True)
         #self.fc2 = nn.Linear(200, 200)
         #self.fc3 = nn.Linear(200, 8, bias=True)
