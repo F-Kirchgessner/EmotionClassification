@@ -29,7 +29,7 @@ def faceAlignment(img, detector, shapePredictor):
     images = dlib.get_face_chips(img, faces, size=320)
     for i, image in enumerate(images):
         #cv_bgr_img = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        image = cv2.resize(image, (200, 200), interpolation = cv2.INTER_LINEAR)
+        image = cv2.resize(image, (256, 256), interpolation = cv2.INTER_LINEAR)
         imagesAligned.append(image)
         
     #cv2.destroyAllWindows()
@@ -60,7 +60,7 @@ def takeSingleImage(cameraPort, adjustmentFrames=30):
     return image
     
 
-def runSingleImage(cameraPort, modelPath, predictorPath):
+def runSingleImage(cameraPort, modelPath, predictorPath, emotions):
     # Preload
     model = torch.load(modelPath)
     model.eval()
@@ -77,16 +77,21 @@ def runSingleImage(cameraPort, modelPath, predictorPath):
     cv2.waitKey(0)
     
     
-def runRealtimeStream(cameraPort, modelPath, predictorPath):
+def runRealtimeStream(cameraPort, modelPath, predictorPath, emotions):
     # Preload
-    model = torch.load(modelPath)
+    model = None
+    try:
+        model = torch.load(modelPath)
+    except:
+        model = torch.load(modelPath, map_location=lambda storage, loc: storage)
+
     model.eval()
     detector = dlib.get_frontal_face_detector()
     shapePredictor = dlib.shape_predictor(predictorPath)
 
     # Display window
     cv2.namedWindow("Emotion Classification")
-    vc = VideoStream(usePiCamera=cameraPort).start()
+    vc = VideoStream(cameraPort, usePiCamera=0).start()
 
     while True:
         image = vc.read()
@@ -98,7 +103,7 @@ def runRealtimeStream(cameraPort, modelPath, predictorPath):
             
             # Add rectangle and text
             cv2.rectangle(image, frames[0][0], frames[0][1], (1, 1, 255))
-            text = "%s" % (results[0][0])
+            text = "%s" % (emotions[results[0][0]])
             cv2.putText(image, text, (frames[0][1][0], frames[0][0][1] + 25), 0, 1, (1, 1, 255))
             
         cv2.imshow("Emotion Classification", image)
@@ -128,12 +133,13 @@ def runCNN(img, model):
 
 if __name__ == "__main__":
     # WSettings
-    cameraPort = 0
+    cameraPort = 1
     modelPath = "models/Basic_300.model"
     predictorPath = "data/shape_predictor_68_face_landmarks.dat"
+    emotions = {0: 'neutral', 1: 'anger', 2: 'contempt', 3: 'disgust', 4: 'fear', 5: 'happy', 6: 'sadness', 7: 'surprise'}
 
-    #runSingleImage(cameraPort, modelPath, predictorPath)
-    runRealtimeStream(cameraPort, modelPath, predictorPath)
+    #runSingleImage(cameraPort, modelPath, predictorPath, emotions)
+    runRealtimeStream(cameraPort, modelPath, predictorPath, emotions)
 
 
 
