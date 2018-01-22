@@ -7,6 +7,11 @@ from torch.autograd import Variable
 import torchvision
 
 useTensorboard = True
+
+# For people that have their torch.cuda.is_available() = True, yet their GPU is too old...SAD!
+# IMPORTANT: Remember to set TRUE when needed!!!
+GPU_Computing = False
+
 try:
     from tensorboardX import SummaryWriter
 except ImportError:
@@ -29,7 +34,7 @@ class Solver(object):
         # weight for one emotion is small if we have a lot of pictures with that emotion label
         # 0=neutral, 1=anger, 2=contempt, 3=disgust, 4=fear, 5=happy, 6=sadness, 7=surprise
         weight = torch.Tensor(np.array([0.05, 0.45, 1.3, 0.19, 0.75, 0.09, 0.35, 0.15]))
-        if torch.cuda.is_available():
+        if torch.cuda.is_available() and GPU_Computing:
             weight = torch.FloatTensor(weight).cuda()
         self.loss_func = torch.nn.CrossEntropyLoss(weight=weight)
 
@@ -55,6 +60,7 @@ class Solver(object):
         - num_epochs: total number of training epochs
         - log_nth: log training accuracy and loss every nth iteration
         """
+		
         # Logger
         # tensorboard --logdir=runs --reload_interval=5
         numValExamples = 5
@@ -72,7 +78,7 @@ class Solver(object):
         self._reset_histories()
         iter_per_epoch = len(train_loader)
 
-        if torch.cuda.is_available():
+        if torch.cuda.is_available() and GPU_Computing:
             model = model.cuda()
 
         if log_nth != 0:
