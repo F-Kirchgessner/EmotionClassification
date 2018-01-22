@@ -7,7 +7,7 @@ from torch.autograd import Variable
 
 from src.data_utils import get_Dataset, OverfitSampler, get_pics
 from src.classifiers.simple_emo_classifier import SimpleEmoClassifier
-from src.classifiers.landmark_emo_classifier import LandmarkEmoClassifier
+#from src.classifiers.landmark_emo_classifier import LandmarkEmoClassifier
 from src.solver import Solver
 
 import time
