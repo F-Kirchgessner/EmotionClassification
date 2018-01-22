@@ -32,7 +32,7 @@ def train():
     # val_loader = torch.utils.data.DataLoader(val_data, batch_size=5, shuffle=False,num_workers=2, sampler=OverfitSampler(20))
 
     log_n = 10
-    epochs = 5
+    epochs = 20
 
     model = SimpleEmoClassifier(weight_scale=0.0005)
     solver = Solver(optim_args={'lr': 5e-5})

@@ -17,13 +17,13 @@ def get_Dataset():
 	
 	# use either get_Huge_Dataset(DataSetName, RGBDimensions, numberTrain) or get_Some_Dataset(DataSetName, numberTrain)
 	CK_train, CK_val = get_Huge_Dataset('CK', 1, 1100)
-	ISED_train, ISED_val = get_Huge_Dataset('ISED', 1, 350)    
+	#ISED_train, ISED_val = get_Huge_Dataset('ISED', 1, 350)    
 	#CK_train, CK_val = get_Some_Dataset('CK', 1100)
     #ISED_train, ISED_val = get_Some_Dataset('ISED', 350)
-	dataset_train = data.ConcatDataset([CK_train, ISED_train])
-	dataset_val = data.ConcatDataset([CK_val, ISED_val])
+	#dataset_train = data.ConcatDataset([CK_train, ISED_train])
+	#dataset_val = data.ConcatDataset([CK_val, ISED_val])
 
-	return dataset_train, dataset_val
+	return CK_train, CK_val
 
 
 def get_Some_Dataset(DataSetName, numberTrain):
