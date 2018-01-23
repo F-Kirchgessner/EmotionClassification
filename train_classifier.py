@@ -77,7 +77,7 @@ def train():
     output = model.forward(Variable(torch.Tensor(test_pics).float()).cuda())
     emotions = {0: 'neutral', 1: 'anger', 2: 'contempt', 3: 'disgust', 4: 'fear', 5: 'happy', 6: 'sadness', 7: 'surprise'}
     print('0=neutral, 1=anger, 2=contempt, 3=disgust, 4=fear, 5=happy, 6=sadness, 7=surprise')
-    print(output.data)
+    print(np.argmax(output.data.cpu().numpy(), axis=1, out = np.empty(amount_example_pics, dtype='int64')))
     print(example_labels)
     output = torch.nn.functional.softmax(output).cpu().data.numpy()
 

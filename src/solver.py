@@ -10,7 +10,7 @@ useTensorboard = True
 
 # For people that have their torch.cuda.is_available() = True, yet their GPU is too old...SAD!
 # IMPORTANT: Remember to set TRUE when needed!!!
-GPU_Computing = False
+GPU_Computing = True
 
 try:
     from tensorboardX import SummaryWriter

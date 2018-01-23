@@ -32,7 +32,7 @@ def get_Some_Dataset(DataSetName, numberTrain):
     # somehow order the rest of the pics into validation Data
     # return test_data, val_data
 
-    labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s/labels.csv' % DataSetName, delimiter=',')[:, 1], dtype=np.int)
+    labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s/labels.csv' % DataSetName, delimiter=',', usecols=1), dtype=np.int)
 
     # vgg_face base_model assume three input color channels, try to find more elegant solution than to copy the greyscale image to all three channels
     images = np.array([[np.array(Image.open(ABS_PATH + '/../data/%s/pics/' % DataSetName + fname), dtype=np.float64),
@@ -63,7 +63,7 @@ def get_pics(train_data, val_data):
     # choose 5 random pics
     filenames = np.sort(os.listdir(ABS_PATH + '/../data/CK/pics'))[np.random.choice(range(1245), amount_example_pics)]
     example_labels = [int(s.split('.')[0]) - 1 for s in filenames]
-    example_labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s/labels.csv' % 'CK', delimiter=',')[:, 1], dtype=np.int)[example_labels - 1]
+    example_labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s/labels.csv' % 'CK', delimiter=',', usecols=1), dtype=np.int)[example_labels - 1]
     test_pics = [[np.array(Image.open(ABS_PATH + '/../data/CK/pics/' + fname), dtype=np.float64),
                   np.array(Image.open(ABS_PATH + '/../data/CK/pics/' + fname), dtype=np.float64),
                   np.array(Image.open(ABS_PATH + '/../data/CK/pics/' + fname), dtype=np.float64)]
@@ -74,7 +74,7 @@ def get_pics(train_data, val_data):
 def get_Huge_Dataset(DataSetName, RGBDimensions, numberTrain):
 	# Main Difference to get_Some_Dataset: load images with Solver when calling __getitem__()
 
-	labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s/labels.csv' % DataSetName, delimiter=',')[:, 1], dtype=np.int)
+	labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s/labels.csv' % DataSetName, delimiter=',', usecols=1), dtype=np.int)
 	data_path = ABS_PATH + '/../data/%s/pics/' % DataSetName
 	data_files = np.sort(os.listdir(data_path))
 
