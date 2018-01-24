@@ -63,7 +63,7 @@ def get_pics(train_data, val_data):
     # choose 5 random pics
     filenames = np.sort(os.listdir(ABS_PATH + '/../data/CK/pics'))[np.random.choice(range(1245), amount_example_pics)]
     example_labels = [int(s.split('.')[0]) - 1 for s in filenames]
-    example_labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s/labels.csv' % 'CK', delimiter=',', usecols=1), dtype=np.int)[example_labels - 1]
+    example_labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s/labels.csv' % 'CK', delimiter=',', usecols=1), dtype=np.int)[example_labels]
     test_pics = [[np.array(Image.open(ABS_PATH + '/../data/CK/pics/' + fname), dtype=np.float64),
                   np.array(Image.open(ABS_PATH + '/../data/CK/pics/' + fname), dtype=np.float64),
                   np.array(Image.open(ABS_PATH + '/../data/CK/pics/' + fname), dtype=np.float64)]

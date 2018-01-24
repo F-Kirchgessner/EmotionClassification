@@ -26,8 +26,8 @@ def train():
 
     train_data, val_data = get_Dataset()
 
-    train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=True, num_workers=0)
-    val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False, num_workers=0)
+    train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=True, num_workers=10)
+    val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False, num_workers=10)
     # train_loader = torch.utils.data.DataLoader(train_data, batch_size = 5, shuffle = False, num_workers = 2, sampler = OverfitSampler(50))
     # val_loader = torch.utils.data.DataLoader(val_data, batch_size=5, shuffle=False,num_workers=2, sampler=OverfitSampler(20))
 
