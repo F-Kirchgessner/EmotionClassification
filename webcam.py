@@ -2,6 +2,7 @@ from imutils.video import VideoStream
 import cv2
 import dlib
 import numpy as np
+import multiprocessing
 
 import torch
 from torch.autograd import Variable
@@ -93,20 +94,32 @@ def runRealtimeStream(cameraPort, modelPath, predictorPath):
     cv2.namedWindow("Emotion Classification")
     vc = VideoStream(cameraPort, usePiCamera=0).start()
 
+    manager = multiprocessing.Manager()
+    results = manager.list()
+    for i in range(5):
+        results.append([True, None])
+
     while True:
         image = vc.read()
         
+        # Detect faces
         imagesAligned, frames = faceAlignment(image, detector, shapePredictor)
-        
-        if imagesAligned != []:
-            results = runCNN(imagesAligned[0], model)
+
+        # Create CNN processes
+        for i in range(len(frames)):
+            if results[i][0]:
+                results[i] = [False] + results[i][1:]
+                p = multiprocessing.Process(target=runCNN, args=(imagesAligned[i], model, i, results))
+                p.start()
             
-            # Add rectangle and text
-            cv2.rectangle(image, frames[0][0], frames[0][1], (1, 1, 255))
-            text = createDisplayText(results)
-            cv2.putText(image, text[0], (frames[0][1][0], frames[0][0][1] + 25), 0, 0.7, (1, 1, 255))
-            cv2.putText(image, text[1], (frames[0][1][0], frames[0][0][1] + 45), 0, 0.7, (1, 1, 255))
-            cv2.putText(image, text[2], (frames[0][1][0], frames[0][0][1] + 65), 0, 0.7, (1, 1, 255))
+        # Add rectangle and text
+        for i in range(len(frames)):
+            if results[i][1] != None:
+                cv2.rectangle(image, frames[i][0], frames[i][1], (1, 1, 255))
+                text = createDisplayText(results[i][1:])
+                cv2.putText(image, text[0], (frames[i][1][0], frames[i][0][1] + 25), 0, 0.7, (1, 1, 255))
+                cv2.putText(image, text[1], (frames[i][1][0], frames[i][0][1] + 45), 0, 0.7, (1, 1, 255))
+                cv2.putText(image, text[2], (frames[i][1][0], frames[i][0][1] + 65), 0, 0.7, (1, 1, 255))
             
         cv2.imshow("Emotion Classification", image)
         
@@ -118,19 +131,7 @@ def runRealtimeStream(cameraPort, modelPath, predictorPath):
     cv2.destroyWindow("Emotion Classification")
 
 
-def createDisplayText(results):
-    emotions = {0: 'neutral', 1: 'anger', 2: 'contempt', 3: 'disgust', 4: 'fear', 5: 'happy', 6: 'sadness', 7: 'surprise'}
-    totalScore = sum([res[1] for res in results])
-    text = []
-
-    text.append("%s: %0.1f%%" %(emotions[results[0][0]], (results[0][1] / totalScore) * 100))
-    text.append("%s: %0.1f%%" %(emotions[results[1][0]], (results[1][1] / totalScore) * 100))
-    text.append("%s: %0.1f%%" %(emotions[results[2][0]], (results[2][1] / totalScore) * 100))
-    
-    return text
-
-
-def runCNN(img, model):
+def runCNN(img, model, faceId, results):
     img = img[np.newaxis,:,:,:]
     img = Variable(torch.Tensor(img))
     img = img.permute(0,3,1,2)
@@ -140,12 +141,24 @@ def runCNN(img, model):
     #Get results
     emotions = np.argsort(-out)[0]
     percentages = -np.sort(-out)[0]
-    results = []
+    tempResults = [True]
 
-    for i in range(len(emotions)):
-        results.append((emotions[i], percentages[i] - percentages[-1]))
+    for i in range(3):
+        tempResults.append((emotions[i], percentages[i] - percentages[-1]))
     
-    return results
+    results[faceId] = tempResults
+
+
+def createDisplayText(results):
+    emotions = {0: 'neutral', 1: 'anger', 2: 'contempt', 3: 'disgust', 4: 'fear', 5: 'happy', 6: 'sadness', 7: 'surprise'}
+    totalScore = sum([res[1] for res in results if res != None])
+    text = []
+
+    text.append("%s: %0.1f%%" %(emotions[results[0][0]], (results[0][1] / totalScore) * 100))
+    text.append("%s: %0.1f%%" %(emotions[results[1][0]], (results[1][1] / totalScore) * 100))
+    text.append("%s: %0.1f%%" %(emotions[results[2][0]], (results[2][1] / totalScore) * 100))
+    
+    return text
 
 
 if __name__ == "__main__":
