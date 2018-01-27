@@ -16,12 +16,14 @@ def get_Dataset():
 	# __getitem__() is called! --> TEST
 	
 	# use either get_Huge_Dataset(DataSetName, RGBDimensions, numberTrain) or get_Some_Dataset(DataSetName, numberTrain)
+	# if you don't want to split dataset with get_Huge_Dataset() use for numberTrain = 0
 	CK_train, CK_val = get_Huge_Dataset('CK', 1, 1100)
-	#ISED_train, ISED_val = get_Huge_Dataset('ISED', 1, 350)    
+	ISED_train, ISED_val = get_Huge_Dataset('ISED', 1, 350)
+	AN_train, AN_val = get_Huge_Dataset('AN_train', 3, 0), get_Huge_Dataset('AN_val', 3, 0)
 	#CK_train, CK_val = get_Some_Dataset('CK', 1100)
     #ISED_train, ISED_val = get_Some_Dataset('ISED', 350)
-	#dataset_train = data.ConcatDataset([CK_train, ISED_train])
-	#dataset_val = data.ConcatDataset([CK_val, ISED_val])
+	dataset_train = data.ConcatDataset([CK_train, ISED_train, AN_train])
+	dataset_val = data.ConcatDataset([CK_val, ISED_val, AN_val])
 
 	return CK_train, CK_val
 
@@ -77,13 +79,16 @@ def get_Huge_Dataset(DataSetName, RGBDimensions, numberTrain):
 	labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s/labels.csv' % DataSetName, delimiter=',', usecols=1), dtype=np.int)
 	data_path = ABS_PATH + '/../data/%s/pics/' % DataSetName
 	data_files = np.sort(os.listdir(data_path))
+	
+	if numberTrain != 0:
+		np.random.seed(0)  # split dataset the same way every time
+		training_mask = np.sort(np.random.choice(range(labels.shape[0]), numberTrain, replace=False))
+		validation_mask = np.sort(np.setdiff1d(list(range(labels.shape[0])), training_mask))
 
-	np.random.seed(0)  # split dataset the same way every time
-	training_mask = np.sort(np.random.choice(range(labels.shape[0]), numberTrain, replace=False))
-	validation_mask = np.sort(np.setdiff1d(list(range(labels.shape[0])), training_mask))
-
-	# return training and validation data using the below defined class Huge_Dataset()
-	return Huge_Dataset(data_path, data_files[training_mask], labels[training_mask], RGBDimensions), Huge_Dataset(data_path, data_files[validation_mask], labels[validation_mask], RGBDimensions)
+		# return training and validation data using the below defined class Huge_Dataset()
+		return Huge_Dataset(data_path, data_files[training_mask], labels[training_mask], RGBDimensions), Huge_Dataset(data_path, data_files[validation_mask], labels[validation_mask], RGBDimensions)
+	else:
+		return Huge_Dataset(data_path, data_files, labels, RGBDimensions)
 
 
 
