@@ -11,15 +11,14 @@ ABS_PATH = os.path.dirname(os.path.abspath(__file__))
 
 def get_Dataset():
     # combine all existing Datasets get_XY() functions
-    # concatenate CK, ISED
-	# IMPORTANT: when getting a big dataset, a different design for the dataset class is needed. Each picture should only be loaded when 
-	# __getitem__() is called! --> TEST
-	
+    # concatenate CK, ISED, AN
+	# IMPORTANT: Emotion labels indices in labels.csv either need to correspond to order in pics folder or they need to be present in every pictures name like this: 000001.png // amount of zeroes or .png/.jpg shoudln't matter. 	For latter IndexInPicName = True.
 	# use either get_Huge_Dataset(DataSetNamePics, DataSetNameLabels, RGBDimensions, numberTrain) or get_Some_Dataset(DataSetName, numberTrain)
 	# if you don't want to split dataset with get_Huge_Dataset() use for numberTrain = 0
-	CK_train, CK_val = get_Huge_Dataset('CK/pics/', 'CK/labels.csv', 1, 1100)
-	ISED_train, ISED_val = get_Huge_Dataset('ISED/pics/', 'ISED/labels.csv', 1, 350)
-	AN_train, AN_val = get_Huge_Dataset('AN/training/', 'AN/training_labels.csv', 3, 0), get_Huge_Dataset('AN/validation/', 'AN/validation_labels.csv', 3, 0)
+
+	CK_train, CK_val = get_Huge_Dataset('CK/pics/', 'CK/labels.csv', 1, 1100, False)
+	ISED_train, ISED_val = get_Huge_Dataset('ISED/pics/', 'ISED/labels.csv', 1, 350, False)
+	AN_train, AN_val = get_Huge_Dataset('AN/training/', 'AN/training_labels.csv', 3, 0, True), get_Huge_Dataset('AN/validation/', 'AN/validation_labels.csv', 3, 0, True)
 	#CK_train, CK_val = get_Some_Dataset('CK', 1100)
     #ISED_train, ISED_val = get_Some_Dataset('ISED', 350)
 	dataset_train = data.ConcatDataset([CK_train, ISED_train, AN_train])
@@ -73,7 +72,7 @@ def get_pics(train_data, val_data):
     return test_pics, example_labels, filenames, amount_example_pics
 
 
-def get_Huge_Dataset(DataSetNamePics, DataSetNameLabels, RGBDimensions, numberTrain):
+def get_Huge_Dataset(DataSetNamePics, DataSetNameLabels, RGBDimensions, numberTrain, IndexInPicName):
 	# Main Difference to get_Some_Dataset: load images with Solver when calling __getitem__()
 
 	labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s' % DataSetNameLabels, delimiter=',', usecols=1), dtype=np.int)
@@ -86,9 +85,9 @@ def get_Huge_Dataset(DataSetNamePics, DataSetNameLabels, RGBDimensions, numberTr
 		validation_mask = np.sort(np.setdiff1d(list(range(labels.shape[0])), training_mask))
 
 		# return training and validation data using the below defined class Huge_Dataset()
-		return Huge_Dataset(data_path, data_files[training_mask], labels[training_mask], RGBDimensions), Huge_Dataset(data_path, data_files[validation_mask], labels[validation_mask], RGBDimensions)
+		return Huge_Dataset(data_path, data_files[training_mask], labels[training_mask], RGBDimensions, IndexInPicName), Huge_Dataset(data_path, data_files[validation_mask], labels[validation_mask], RGBDimensions, IndexInPicName)
 	else:
-		return Huge_Dataset(data_path, data_files, labels, RGBDimensions)
+		return Huge_Dataset(data_path, data_files, labels, RGBDimensions, IndexInPicName)
 
 
 
@@ -107,18 +106,19 @@ def load_image(data_path, data_filename, dimension, mean):
 
 
 class Huge_Dataset(data.Dataset):
-	def __init__(self, data_path, data_files, labels, RGBDimensions):
+	def __init__(self, data_path, data_files, labels, RGBDimensions, IndexInPicName):
 		self.data_path = data_path
 		self.data_files = data_files
 		self.labels = labels
 		self.RGBDimensions = RGBDimensions
+		self.IndexInPicName = IndexInPicName
 
 
 		# over the course of calling __getitem__() with the Solver, refine self.mean
 		self.mean = 0.0
 		self.indexes = []
 
-	def __getitem__(self, index):
+	def __getitem__(self, index):		
 		image = load_image(self.data_path, self.data_files[index], self.RGBDimensions, self.mean)
 		
 		# update mean
@@ -128,12 +128,16 @@ class Huge_Dataset(data.Dataset):
 			self.indexes.sort()
 
 		image = torch.from_numpy(image)
-		
-		return image, self.labels[index]
+
+		if self.IndexInPicName:
+			file_index = int(self.data_files[index].split('.')[0])
+			return image, self.labels[file_index]
+		else:
+			return image, self.labels[index]
 
 
 	def __len__(self):
-		return len(self.labels)
+		return len(self.data_files)
 
 
 class Data(data.Dataset):
