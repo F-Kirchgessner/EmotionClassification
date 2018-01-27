@@ -1,0 +1,14 @@
+Extracting a total of 414800 files from the training part of the dataset.
+
+
+Extracted 277202 faces successfully and sorted out 137598 pictures in 11h44min07s.
+
+Number of pictures for each label:
+Neutral=71687
+Happiness=131465
+Sadness=23863
+Surprise=13510
+Fear=5960
+Disgust=3672
+Anger=23377
+Contempt=3668

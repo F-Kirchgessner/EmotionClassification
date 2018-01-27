@@ -1,0 +1,27 @@
+# tar files and split them into parts
+
+tar cvf AN2.tar training
+split --verbose -b 7000m AN2.tar "AN2.tar.part"
+
+
+
+
+
+# join the parts again and untar them
+
+cat AN2.tar.part* | tar xv
+
+
+AN2.tar.partaa
+https://onedrive.live.com/download?cid=AC00E5310A9B0756&resid=AC00E5310A9B0756%21116691&authkey=ADElYftJhO2X0K8
+
+
+AN2.tar.partab
+https://onedrive.live.com/download?cid=AC00E5310A9B0756&resid=AC00E5310A9B0756%21116693&authkey=AAb7P6N4Hq3JqTg
+
+
+AN2.tar.partac
+https://onedrive.live.com/download?cid=AC00E5310A9B0756&resid=AC00E5310A9B0756%21116692&authkey=ABq92LYCWz_g3NA
+
+AN2.tar.partad
+https://onedrive.live.com/download?cid=AC00E5310A9B0756&resid=AC00E5310A9B0756%21116694&authkey=ABg7UfZpPbJIajs

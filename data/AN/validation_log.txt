@@ -1,0 +1,13 @@
+Extracting a total of 5500 files from the validation part of the dataset.
+
+3847 Validation pics available.
+
+Number of pictures for each label:
+Neutral=477
+Happiness=489
+Sadness=482
+Surprise=474
+Fear=469
+Disgust=486
+Anger=475
+Contempt=495
