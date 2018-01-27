@@ -24,12 +24,13 @@ def train():
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
     print("Loading data...")
-
+	
+	#currently only using AN Dataset
     train_data, val_data = get_Dataset()
 	
-	#after one epoch, datasets have in self.indices a list with all working indices of the picture directory --> use it for a sampler
-    train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=True, sampler=data.sampler.SubsetRandomSampler(train_data.indices), num_workers=10)
-    val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False, sampler=data.sampler.SubsetRandomSampler(val_data.indices),num_workers=10)
+	
+    train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=True, num_workers=4)
+    val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False, num_workers=4)
     # train_loader = torch.utils.data.DataLoader(train_data, batch_size = 5, shuffle = False, num_workers = 2, sampler = OverfitSampler(50))
     # val_loader = torch.utils.data.DataLoader(val_data, batch_size=5, shuffle=False,num_workers=2, sampler=OverfitSampler(20))
 
@@ -39,7 +40,14 @@ def train():
     model = SimpleEmoClassifier(weight_scale=0.0005)
     solver = Solver(optim_args={'lr': 5e-5})
     tic = time.time()
-    solver.train(model, train_loader, val_loader, num_epochs=epochs, log_nth=log_n)
+    solver.train(model, train_loader, val_loader, num_epochs=1, log_nth=log_n)
+
+	#after one epoch, datasets have in self.indices a list with all working indices of the picture directory --> use it for a sampler
+    train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=False, sampler=data.sampler.SubsetRandomSampler(train_data.indices), num_workers=4)
+    val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False, sampler=data.sampler.SubsetRandomSampler(val_data.indices),num_workers=4)
+
+	solver.train(model, train_loader, val_loader, num_epochs=epochs-1, log_nth=log_n)
+
     temp_time = time.time() - tic
     m, s = divmod(temp_time, 60)
     h, m = divmod(m, 60)
