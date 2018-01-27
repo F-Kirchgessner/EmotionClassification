@@ -1,5 +1,6 @@
 """Data utility functions."""
 import os
+import random
 import numpy as np
 import torch
 import torch.utils.data as data
@@ -92,9 +93,12 @@ def get_Huge_Dataset(DataSetNamePics, DataSetNameLabels, RGBDimensions, numberTr
 
 
 
-def load_image(data_path, data_filename, dimension, mean):
-	# open image in numpy array and check if file has only one dimension, we need 3 dimensions for our neural net!
-	img = np.array(Image.open(data_path + data_filename), dtype=np.float64)
+def load_image(data_path, data_filename, dimension, mean, index):
+	# open image in numpy array and check if file has only one dimension, we need 3 dimensions for our neural net! If it doesn't open put index on banned list.
+	try: 	
+		img = np.array(Image.open(data_path + data_filename), dtype=np.float64)
+	except:
+		return index
 	if dimension == 1:
 		image = np.array([img, img, img])
 	else:
@@ -103,6 +107,12 @@ def load_image(data_path, data_filename, dimension, mean):
 	image -= mean
 	return image
 
+def get_label_index(IndexInPicName, index, data_files, labels):
+	if IndexInPicName:
+		index_from_filename = int(data_files[index].split('.')[0])
+		return labels[index_from_filename]
+	else:
+		return labels[index]
 
 
 class Huge_Dataset(data.Dataset):
@@ -113,27 +123,32 @@ class Huge_Dataset(data.Dataset):
 		self.RGBDimensions = RGBDimensions
 		self.IndexInPicName = IndexInPicName
 
-
 		# over the course of calling __getitem__() with the Solver, refine self.mean
 		self.mean = 0.0
-		self.indexes = []
+		self.indices = []
+		self.banned_indices = []
 
 	def __getitem__(self, index):		
-		image = load_image(self.data_path, self.data_files[index], self.RGBDimensions, self.mean)
-		
+		image = load_image(self.data_path, self.data_files[index], self.RGBDimensions, self.mean, index)
+		if image == index and not index in self.banned_indices: #safety first
+			self.banned_indices.append(index)
+			self.banned_indices.sort()
+			#generate random index that has already been used, only going to be called in first epoch
+			rand = random.randint(len(self.indices))
+			image = load_image(self.data_path, self.data_files[self.indices[rand]], self.RGBDimensions, self.mean, indices[rand])
+			image = torch.from_numpy(image)
+			return image, get_label_index(self.IndexInPicName, indices[rand], self.data_files, self.labels)
+			
 		# update mean
-		if not index in self.indexes:
-			self.mean = (len(self.indexes) * self.mean + image) / (len(self.indexes) + 1)
-			self.indexes.append(index)
-			self.indexes.sort()
+		if not index in self.indices:
+			self.mean = (len(self.indices) * self.mean + image) / (len(self.indices) + 1)
+			self.indices.append(index)
+			self.indices.sort()
 
 		image = torch.from_numpy(image)
 
-		if self.IndexInPicName:
-			file_index = int(self.data_files[index].split('.')[0])
-			return image, self.labels[file_index]
-		else:
-			return image, self.labels[index]
+		return image, get_label_index(self.IndexInPicName, index, self.data_files, self.labels)
+
 
 
 	def __len__(self):

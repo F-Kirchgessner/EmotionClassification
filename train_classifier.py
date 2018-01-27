@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torch
 from torch.autograd import Variable
+import torch.utils.data as data
 
 from src.data_utils import get_Dataset, OverfitSampler, get_pics
 from src.classifiers.simple_emo_classifier import SimpleEmoClassifier
@@ -25,9 +26,10 @@ def train():
     print("Loading data...")
 
     train_data, val_data = get_Dataset()
-
-    train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=True, num_workers=10)
-    val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False, num_workers=10)
+	
+	#after one epoch, datasets have in self.indices a list with all working indices of the picture directory --> use it for a sampler
+    train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=True, sampler=data.sampler.SubsetRandomSampler(train_data.indices), num_workers=10)
+    val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False, sampler=data.sampler.SubsetRandomSampler(val_data.indices),num_workers=10)
     # train_loader = torch.utils.data.DataLoader(train_data, batch_size = 5, shuffle = False, num_workers = 2, sampler = OverfitSampler(50))
     # val_loader = torch.utils.data.DataLoader(val_data, batch_size=5, shuffle=False,num_workers=2, sampler=OverfitSampler(20))
 
