@@ -15,17 +15,17 @@ def get_Dataset():
 	# IMPORTANT: when getting a big dataset, a different design for the dataset class is needed. Each picture should only be loaded when 
 	# __getitem__() is called! --> TEST
 	
-	# use either get_Huge_Dataset(DataSetName, RGBDimensions, numberTrain) or get_Some_Dataset(DataSetName, numberTrain)
+	# use either get_Huge_Dataset(DataSetNamePics, DataSetNameLabels, RGBDimensions, numberTrain) or get_Some_Dataset(DataSetName, numberTrain)
 	# if you don't want to split dataset with get_Huge_Dataset() use for numberTrain = 0
-	CK_train, CK_val = get_Huge_Dataset('CK', 1, 1100)
-	ISED_train, ISED_val = get_Huge_Dataset('ISED', 1, 350)
-	AN_train, AN_val = get_Huge_Dataset('AN_train', 3, 0), get_Huge_Dataset('AN_val', 3, 0)
+	CK_train, CK_val = get_Huge_Dataset('CK/pics/', 'CK/labels.csv', 1, 1100)
+	ISED_train, ISED_val = get_Huge_Dataset('ISED/pics/', 'ISED/labels.csv', 1, 350)
+	AN_train, AN_val = get_Huge_Dataset('AN/training/', 'AN/training_labels.csv', 3, 0), get_Huge_Dataset('AN/validation/', 'AN/validation_labels.csv', 3, 0)
 	#CK_train, CK_val = get_Some_Dataset('CK', 1100)
     #ISED_train, ISED_val = get_Some_Dataset('ISED', 350)
 	dataset_train = data.ConcatDataset([CK_train, ISED_train, AN_train])
 	dataset_val = data.ConcatDataset([CK_val, ISED_val, AN_val])
 
-	return CK_train, CK_val
+	return dataset_train, dataset_val
 
 
 def get_Some_Dataset(DataSetName, numberTrain):
@@ -73,11 +73,11 @@ def get_pics(train_data, val_data):
     return test_pics, example_labels, filenames, amount_example_pics
 
 
-def get_Huge_Dataset(DataSetName, RGBDimensions, numberTrain):
+def get_Huge_Dataset(DataSetNamePics, DataSetNameLabels, RGBDimensions, numberTrain):
 	# Main Difference to get_Some_Dataset: load images with Solver when calling __getitem__()
 
-	labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s/labels.csv' % DataSetName, delimiter=',', usecols=1), dtype=np.int)
-	data_path = ABS_PATH + '/../data/%s/pics/' % DataSetName
+	labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s' % DataSetNameLabels, delimiter=',', usecols=1), dtype=np.int)
+	data_path = ABS_PATH + '/../data/%s' % DataSetNamePics
 	data_files = np.sort(os.listdir(data_path))
 	
 	if numberTrain != 0:
