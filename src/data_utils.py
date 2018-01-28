@@ -134,9 +134,10 @@ class Huge_Dataset(data.Dataset):
 
 	def __getitem__(self, index):		
 		image, error = load_image(self.data_path, self.data_files[index], self.RGBDimensions, self.mean, index)
-		if error and not index in self.banned_indices: #safety first
-			self.banned_indices.append(index)
-			self.banned_indices.sort()
+		if error:
+			if not index in self.banned_indices: #safety first
+				self.banned_indices.append(index)
+				self.banned_indices.sort()
 			#generate random index that has already been used, only going to be called in first epoch
 			try:			
 				rand = random.randint(0, len(self.indices) - 1)
