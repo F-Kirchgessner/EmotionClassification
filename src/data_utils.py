@@ -76,8 +76,10 @@ def get_pics(train_data, val_data):
 
 def get_Huge_Dataset(DataSetNamePics, DataSetNameLabels, RGBDimensions, numberTrain, IndexInPicName):
 	# Main Difference to get_Some_Dataset: load images with Solver when calling __getitem__()
-
-	labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s' % DataSetNameLabels, delimiter=',', usecols=1), dtype=np.int)
+	if 'AN' in DataSetNamePics:
+		labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s' % DataSetNameLabels, usecols=1, skiprows=1), dtype=np.int)
+	else:
+		labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s' % DataSetNameLabels, delimiter=',', usecols=1), dtype=np.int)
 	data_path = ABS_PATH + '/../data/%s' % DataSetNamePics
 	data_files = np.sort(os.listdir(data_path))
 	
