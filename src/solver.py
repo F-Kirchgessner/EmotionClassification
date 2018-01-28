@@ -34,7 +34,7 @@ class Solver(object):
         # one weight that correspends for unequal amount of emotion labels in AN, CK and ISED datasets
         # weight for one emotion is small if we have a lot of pictures with that emotion label
         # Old labels: 0=neutral, 1=anger, 2=contempt, 3=disgust, 4=fear, 5=happy, 6=sadness, 7=surprise --> DO NOT USE!
-		# New labels: 0=neutral, 1=happy, 2=sad, 3=surprise, 4=fear, 5=disgust, 6=anger, 7=contempt
+        # New labels: 0=neutral, 1=happy, 2=sad, 3=surprise, 4=fear, 5=disgust, 6=anger, 7=contempt
         compensation_weights = torch.Tensor(get_compensation_weights())
         if torch.cuda.is_available() and GPU_Computing:
             compensation_weights = torch.FloatTensor(compensation_weights).cuda()
@@ -62,10 +62,11 @@ class Solver(object):
         - num_epochs: total number of training epochs
         - log_nth: log training accuracy and loss every nth iteration
         """
-		
+
         # Logger
         # tensorboard --logdir=runs --reload_interval=5
         numValExamples = 5
+        # old labels
         emotions = {0: 'neutral', 1: 'anger', 2: 'contempt', 3: 'disgust', 4: 'fear', 5: 'happy', 6: 'sadness', 7: 'surprise'}
         if useTensorboard:
             self.writer = SummaryWriter()
@@ -82,9 +83,6 @@ class Solver(object):
 
         if torch.cuda.is_available() and GPU_Computing:
             model = model.cuda()
-
-        if log_nth != 0:
-            print('START TRAIN.')
 
         for epoch in range(num_epochs):
             # TRAINING
@@ -176,6 +174,3 @@ class Solver(object):
                                                                    num_epochs,
                                                                    val_acc,
                                                                    val_loss))
-
-        if log_nth != 0:
-            print('FINISH.')

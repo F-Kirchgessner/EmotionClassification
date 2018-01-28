@@ -14,19 +14,20 @@ ABS_PATH = os.path.dirname(os.path.abspath(__file__))
 def get_Dataset():
     # combine all existing Datasets get_XY() functions
     # concatenate CK, ISED, AN
-	# IMPORTANT: Emotion labels indices in labels.csv either need to correspond to order in pics folder or they need to be present in every pictures name like this: 000001.png // amount of zeroes or .png/.jpg shoudln't matter. 	For latter IndexInPicName = True.
-	# use either get_Huge_Dataset(DataSetNamePics, DataSetNameLabels, RGBDimensions, numberTrain) or get_Some_Dataset(DataSetName, numberTrain)
-	# if you don't want to split dataset with get_Huge_Dataset() use for numberTrain = 0
+    # IMPORTANT: Emotion labels indices in labels.csv either need to correspond to order in pics folder or they need to be present in every pictures name like this: 000001.png // amount of zeroes or .png/.jpg shoudln't matter. 	For latter IndexInPicName = True.
+    # use either get_Huge_Dataset(DataSetNamePics, DataSetNameLabels, RGBDimensions, numberTrain) or get_Some_Dataset(DataSetName, numberTrain)
+    # if you don't want to split dataset with get_Huge_Dataset() use for numberTrain = 0
 
-	#CK_train, CK_val = get_Huge_Dataset('CK/pics/', 'CK/labels.csv', 1, 1100, False)
-	#ISED_train, ISED_val = get_Huge_Dataset('ISED/pics/', 'ISED/labels.csv', 1, 350, False)
-	AN_train, AN_val = get_Huge_Dataset('AN/training/', 'AN/training_labels.csv', 3, 0, True), get_Huge_Dataset('AN/validation/', 'AN/validation_labels.csv', 3, 0, True)
-	#CK_train, CK_val = get_Some_Dataset('CK', 1100)
+    #CK_train, CK_val = get_Huge_Dataset('CK/pics/', 'CK/labels.csv', 1, 1100, False)
+    #ISED_train, ISED_val = get_Huge_Dataset('ISED/pics/', 'ISED/labels.csv', 1, 350, False)
+    AN_train, AN_val = get_Huge_Dataset('AN/training/', 'AN/training_labels.csv', 3, 0,
+                                        True), get_Huge_Dataset('AN/validation/', 'AN/validation_labels.csv', 3, 0, True)
+    #CK_train, CK_val = get_Some_Dataset('CK', 1100)
     #ISED_train, ISED_val = get_Some_Dataset('ISED', 350)
-	#dataset_train = data.ConcatDataset([CK_train, ISED_train, AN_train])
-	#dataset_val = data.ConcatDataset([CK_val, ISED_val, AN_val])
+    #dataset_train = data.ConcatDataset([CK_train, ISED_train, AN_train])
+    #dataset_val = data.ConcatDataset([CK_val, ISED_val, AN_val])
 
-	return AN_train, AN_val
+    return AN_train, AN_val
 
 
 def get_Some_Dataset(DataSetName, numberTrain):
@@ -75,95 +76,92 @@ def get_pics(train_data, val_data):
 
 
 def get_Huge_Dataset(DataSetNamePics, DataSetNameLabels, RGBDimensions, numberTrain, IndexInPicName):
-	# Main Difference to get_Some_Dataset: load images with Solver when calling __getitem__()
-	if 'AN' in DataSetNamePics:
-		labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s' % DataSetNameLabels, usecols=1, skiprows=1), dtype=np.int)
-	else:
-		labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s' % DataSetNameLabels, delimiter=',', usecols=1), dtype=np.int)
-	data_path = ABS_PATH + '/../data/%s' % DataSetNamePics
-	data_files = np.sort(os.listdir(data_path))
-	
-	if numberTrain != 0:
-		np.random.seed(0)  # split dataset the same way every time
-		training_mask = np.sort(np.random.choice(range(labels.shape[0]), numberTrain, replace=False))
-		validation_mask = np.sort(np.setdiff1d(list(range(labels.shape[0])), training_mask))
+    # Main Difference to get_Some_Dataset: load images with Solver when calling __getitem__()
+    if 'AN' in DataSetNamePics:
+        labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s' % DataSetNameLabels, usecols=1, skiprows=1), dtype=np.int)
+    else:
+        labels = np.array(np.loadtxt(ABS_PATH + '/../data/%s' % DataSetNameLabels, delimiter=',', usecols=1), dtype=np.int)
+    data_path = ABS_PATH + '/../data/%s' % DataSetNamePics
+    data_files = np.sort(os.listdir(data_path))
 
-		# return training and validation data using the below defined class Huge_Dataset()
-		return Huge_Dataset(data_path, data_files[training_mask], labels[training_mask], RGBDimensions, IndexInPicName), Huge_Dataset(data_path, data_files[validation_mask], labels[validation_mask], RGBDimensions, IndexInPicName)
-	else:
-		return Huge_Dataset(data_path, data_files, labels, RGBDimensions, IndexInPicName)
+    if numberTrain != 0:
+        np.random.seed(0)  # split dataset the same way every time
+        training_mask = np.sort(np.random.choice(range(labels.shape[0]), numberTrain, replace=False))
+        validation_mask = np.sort(np.setdiff1d(list(range(labels.shape[0])), training_mask))
 
-
+        # return training and validation data using the below defined class Huge_Dataset()
+        return Huge_Dataset(data_path, data_files[training_mask], labels[training_mask], RGBDimensions, IndexInPicName), Huge_Dataset(data_path, data_files[validation_mask], labels[validation_mask], RGBDimensions, IndexInPicName)
+    else:
+        return Huge_Dataset(data_path, data_files, labels, RGBDimensions, IndexInPicName)
 
 
 def load_image(data_path, data_filename, dimension, mean, index):
-	# open image in numpy array and check if file has only one dimension, we need 3 dimensions for our neural net! If it doesn't open put index on banned list.
-	try: 	
-		img = np.array(Image.open(data_path + data_filename), dtype=np.float64)
-	except:
-		try:
-			img = scipy.ndimage.imread(data_path + data_filename).astype(float)
-		except:
-			return index, 'True'
-	if dimension == 1:
-		image = np.array([img, img, img])
-	else:
-		image = np.moveaxis(img, 2, 0)
-	image /= 255.0
-	image -= mean
-	return image, 'False'
+    # open image in numpy array and check if file has only one dimension, we need 3 dimensions for our neural net! If it doesn't open put index on banned list.
+    try:
+        img = np.array(Image.open(data_path + data_filename), dtype=np.float64)
+    except:
+        try:
+            img = scipy.ndimage.imread(data_path + data_filename).astype(float)
+        except:
+            return index, True
+    if dimension == 1:
+        image = np.array([img, img, img])
+    else:
+        image = np.moveaxis(img, 2, 0)
+    image /= 255.0
+    image -= mean
+    return image, False
+
 
 def get_label_index(IndexInPicName, index, data_files, labels):
-	if IndexInPicName:
-		index_from_filename = int(data_files[index].split('.')[0])
-		return labels[index_from_filename]
-	else:
-		return labels[index]
+    if IndexInPicName:
+        index_from_filename = int(data_files[index].split('.')[0])
+        return labels[index_from_filename]
+    else:
+        return labels[index]
 
 
 class Huge_Dataset(data.Dataset):
-	def __init__(self, data_path, data_files, labels, RGBDimensions, IndexInPicName):
-		self.data_path = data_path
-		self.data_files = data_files
-		self.labels = labels
-		self.RGBDimensions = RGBDimensions
-		self.IndexInPicName = IndexInPicName
+    def __init__(self, data_path, data_files, labels, RGBDimensions, IndexInPicName):
+        self.data_path = data_path
+        self.data_files = data_files
+        self.labels = labels
+        self.RGBDimensions = RGBDimensions
+        self.IndexInPicName = IndexInPicName
 
-		# over the course of calling __getitem__() with the Solver, refine self.mean
-		self.mean = 0.0
-		self.indices = []
-		self.banned_indices = []
+        # over the course of calling __getitem__() with the Solver, refine self.mean
+        self.mean = 0.0
+        self.indices = []
+        self.banned_indices = []
 
-	def __getitem__(self, index):		
-		image, error = load_image(self.data_path, self.data_files[index], self.RGBDimensions, self.mean, index)
-		if error:
-			if not index in self.banned_indices: #safety first
-				self.banned_indices.append(index)
-				self.banned_indices.sort()
-			#generate random index that has already been used, only going to be called in first epoch
-			try:			
-				rand = random.randint(0, len(self.indices) - 1)
-			except: #if self.indices has no entries yet, just take first element.
-				self.indices.append(0)
-				rand = 0 
-			image = load_image(self.data_path, self.data_files[self.indices[rand]], self.RGBDimensions, self.mean, self.indices[rand])[0]
-			image = torch.from_numpy(image)
-			return image, get_label_index(self.IndexInPicName, self.indices[rand], self.data_files, self.labels)
-			
-		# update mean
-		if not index in self.indices:
-			self.mean = (len(self.indices) * self.mean + image) / (len(self.indices) + 1)
-			self.indices.append(index)
-			self.indices.sort()
+    def __getitem__(self, index):
+        image, error = load_image(self.data_path, self.data_files[index], self.RGBDimensions, self.mean, index)
+        if error:
+            if not index in self.banned_indices:  # safety first
+                self.banned_indices.append(index)
+                self.banned_indices.sort()
+            # generate random index that has already been used, only going to be called in first epoch
+            try:
+                rand = random.randint(0, len(self.indices) - 1)
+            except:  # if self.indices has no entries yet, just take first element.
+                self.indices.append(0)
+                rand = 0
+            image = load_image(self.data_path, self.data_files[self.indices[rand]], self.RGBDimensions, self.mean, self.indices[rand])[0]
+            image = torch.from_numpy(image)
+            return image, get_label_index(self.IndexInPicName, self.indices[rand], self.data_files, self.labels)
 
-		image = torch.from_numpy(image)
+        # update mean
+        if not index in self.indices:
+            self.mean = (len(self.indices) * self.mean + image) / (len(self.indices) + 1)
+            self.indices.append(index)
+            self.indices.sort()
 
-		return image, get_label_index(self.IndexInPicName, index, self.data_files, self.labels)
+        image = torch.from_numpy(image)
 
+        return image, get_label_index(self.IndexInPicName, index, self.data_files, self.labels)
 
-
-	def __len__(self):
-		return len(self.data_files)
+    def __len__(self):
+        return len(self.data_files)
 
 
 class Data(data.Dataset):
@@ -181,7 +179,6 @@ class Data(data.Dataset):
 
     def __len__(self):
         return len(self.y)
-
 
 
 class OverfitSampler(object):
