@@ -20,9 +20,8 @@ def get_Dataset():
 
     #CK_train, CK_val = get_Huge_Dataset('CK/pics/', 'CK/labels.csv', 1, 1100, False)
     #ISED_train, ISED_val = get_Huge_Dataset('ISED/pics/', 'ISED/labels.csv', 1, 350, False)
-    #AN_train, AN_val = get_Huge_Dataset('AN/training/', 'AN/training_labels.csv', 3, 0,
-    #                                    True), get_Huge_Dataset('AN/validation/', 'AN/validation_labels.csv', 3, 0, True)
-    AN_train, AN_val = get_Huge_Dataset('AN/validation/', 'AN/validation_labels.csv', 3, 500, True)
+    AN_train, AN_val = get_Huge_Dataset('AN/training/', 'AN/training_labels.csv', 3, 0,
+                                        True), get_Huge_Dataset('AN/validation/', 'AN/validation_labels.csv', 3, 0, True)
 
     #dataset_train = data.ConcatDataset([CK_train, ISED_train, AN_train])
     #dataset_val = data.ConcatDataset([CK_val, ISED_val, AN_val])
@@ -86,8 +85,8 @@ def get_Huge_Dataset(DataSetNamePics, DataSetNameLabels, RGBDimensions, numberTr
 
     if numberTrain != 0:
         np.random.seed(0)  # split dataset the same way every time
-        training_mask = np.sort(np.random.choice(range(labels.shape[0]), numberTrain, replace=False))
-        validation_mask = np.sort(np.setdiff1d(list(range(labels.shape[0])), training_mask))
+        training_mask = np.sort(np.random.choice(range(data_files.shape[0]), numberTrain, replace=False))
+        validation_mask = np.sort(np.setdiff1d(list(range(data_files.shape[0])), training_mask))
 
         # return training and validation data using the below defined class Huge_Dataset()
         return Huge_Dataset(data_path, data_files[training_mask], labels[training_mask], RGBDimensions, IndexInPicName), Huge_Dataset(data_path, data_files[validation_mask], labels[validation_mask], RGBDimensions, IndexInPicName)
@@ -116,7 +115,7 @@ def load_image(data_path, data_filename, dimension, mean, index):
 def get_label_index(IndexInPicName, index, data_files, labels):
     if IndexInPicName:
         index_from_filename = int(data_files[index].split('.')[0])
-        return labels[index_from_filenames]
+        return labels[index_from_filenames - 1]
     else:
         return labels[index]
 
