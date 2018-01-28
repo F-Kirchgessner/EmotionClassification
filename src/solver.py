@@ -66,6 +66,7 @@ class Solver(object):
         # Logger
         # tensorboard --logdir=runs --reload_interval=5
         numValExamples = 5
+        # old labels
         emotions = {0: 'neutral', 1: 'anger', 2: 'contempt', 3: 'disgust', 4: 'fear', 5: 'happy', 6: 'sadness', 7: 'surprise'}
         if useTensorboard:
             self.writer = SummaryWriter()

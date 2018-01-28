@@ -103,14 +103,14 @@ def load_image(data_path, data_filename, dimension, mean, index):
         try:
             img = scipy.ndimage.imread(data_path + data_filename).astype(float)
         except:
-            return index, 'True'
+            return index, True
     if dimension == 1:
         image = np.array([img, img, img])
     else:
         image = np.moveaxis(img, 2, 0)
     image /= 255.0
     image -= mean
-    return image, 'False'
+    return image, False
 
 
 def get_label_index(IndexInPicName, index, data_files, labels):
