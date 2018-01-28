@@ -83,9 +83,6 @@ class Solver(object):
         if torch.cuda.is_available() and GPU_Computing:
             model = model.cuda()
 
-        if log_nth != 0:
-            print('START TRAIN.')
-
         for epoch in range(num_epochs):
             # TRAINING
             train_loss = 0
@@ -176,6 +173,3 @@ class Solver(object):
                                                                    num_epochs,
                                                                    val_acc,
                                                                    val_loss))
-
-        if log_nth != 0:
-            print('FINISH.')

@@ -37,6 +37,7 @@ def train():
     log_n = 10
     epochs = 10
 
+    print("Training for %d epochs." % epochs)
     model = SimpleEmoClassifier(weight_scale=0.0005)
     solver = Solver(optim_args={'lr': 5e-5})
     tic = time.time()
