@@ -20,10 +20,10 @@ def get_Dataset():
 
     #CK_train, CK_val = get_Huge_Dataset('CK/pics/', 'CK/labels.csv', 1, 1100, False)
     #ISED_train, ISED_val = get_Huge_Dataset('ISED/pics/', 'ISED/labels.csv', 1, 350, False)
-    AN_train, AN_val = get_Huge_Dataset('AN/training/', 'AN/training_labels.csv', 3, 0,
-                                        True), get_Huge_Dataset('AN/validation/', 'AN/validation_labels.csv', 3, 0, True)
-    #CK_train, CK_val = get_Some_Dataset('CK', 1100)
-    #ISED_train, ISED_val = get_Some_Dataset('ISED', 350)
+    #AN_train, AN_val = get_Huge_Dataset('AN/training/', 'AN/training_labels.csv', 3, 0,
+    #                                    True), get_Huge_Dataset('AN/validation/', 'AN/validation_labels.csv', 3, 0, True)
+    AN_train, AN_val = get_Huge_Dataset('AN/validation/', 'AN/validation_labels.csv', 3, 500, True)
+
     #dataset_train = data.ConcatDataset([CK_train, ISED_train, AN_train])
     #dataset_val = data.ConcatDataset([CK_val, ISED_val, AN_val])
 
@@ -96,7 +96,7 @@ def get_Huge_Dataset(DataSetNamePics, DataSetNameLabels, RGBDimensions, numberTr
 
 
 def load_image(data_path, data_filename, dimension, mean, index):
-    # open image in numpy array and check if file has only one dimension, we need 3 dimensions for our neural net! If it doesn't open put index on banned list.
+    # open image in numpy array and check if file has only one dimension, we need 3 dimensions for our neural net! If it doesn't open, give dataloader an already used picture and do not put it in self.indices!
     try:
         img = np.array(Image.open(data_path + data_filename), dtype=np.float64)
     except:
@@ -116,7 +116,7 @@ def load_image(data_path, data_filename, dimension, mean, index):
 def get_label_index(IndexInPicName, index, data_files, labels):
     if IndexInPicName:
         index_from_filename = int(data_files[index].split('.')[0])
-        return labels[index_from_filename]
+        return labels[index_from_filenames]
     else:
         return labels[index]
 
@@ -132,19 +132,16 @@ class Huge_Dataset(data.Dataset):
         # over the course of calling __getitem__() with the Solver, refine self.mean
         self.mean = 0.0
         self.indices = []
-        self.banned_indices = []
 
     def __getitem__(self, index):
         image, error = load_image(self.data_path, self.data_files[index], self.RGBDimensions, self.mean, index)
         if error:
-            if not index in self.banned_indices:  # safety first
-                self.banned_indices.append(index)
-                self.banned_indices.sort()
             # generate random index that has already been used, only going to be called in first epoch
             try:
                 rand = random.randint(0, len(self.indices) - 1)
             except:  # if self.indices has no entries yet, just take first element.
-                self.indices.append(0)
+                if not 0 in self.indices:
+                    self.indices.append(0)
                 rand = 0
             image = load_image(self.data_path, self.data_files[self.indices[rand]], self.RGBDimensions, self.mean, self.indices[rand])[0]
             image = torch.from_numpy(image)
