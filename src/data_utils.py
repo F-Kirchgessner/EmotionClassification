@@ -5,6 +5,7 @@ import numpy as np
 import torch
 import torch.utils.data as data
 from PIL import Image
+import scipy.ndimage
 
 # path where this file is located
 ABS_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -98,11 +99,14 @@ def load_image(data_path, data_filename, dimension, mean, index):
 	try: 	
 		img = np.array(Image.open(data_path + data_filename), dtype=np.float64)
 	except:
-		return index, 'True'
+		try:
+			img = scipy.ndimage.imread(data_path + data_filename).astype(float)
+		except:
+			return index, 'True'
 	if dimension == 1:
 		image = np.array([img, img, img])
 	else:
-		image = img
+		image = np.moveaxis(img, 3, 1)
 	image /= 255.0
 	image -= mean
 	return image, 'False'

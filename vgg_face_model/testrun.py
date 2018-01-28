@@ -14,7 +14,7 @@ model.eval()
 # Load picture and prepare for impact
 pic=scipy.ndimage.imread('candice.png')
 pic = pic[np.newaxis,:,:,:]
-pic = Variable(torch.Tensor(pic)) #If error occurs because some elements are not float : pic = Variable(torch.Tensor(pic.astype(float)))
+pic = Variable(torch.Tensor(pic.astype(float))) #If error occurs because some elements are not float : pic = Variable(torch.Tensor(pic.astype(float)))
 pic = pic.permute(0,3,1,2)
 
 # classify picture

@@ -1,6 +1,7 @@
 from random import shuffle
 import numpy as np
 import cv2
+import weight_compensation.get_compensation_weights()
 
 import torch
 from torch.autograd import Variable
@@ -30,13 +31,14 @@ class Solver(object):
         optim_args_merged.update(optim_args)
         self.optim_args = optim_args_merged
         self.optim = optim
-        # one weight that correspends for unequal amount of emotion labels in CK and ISED datasets
+        # one weight that correspends for unequal amount of emotion labels in AN, CK and ISED datasets
         # weight for one emotion is small if we have a lot of pictures with that emotion label
-        # 0=neutral, 1=anger, 2=contempt, 3=disgust, 4=fear, 5=happy, 6=sadness, 7=surprise
-        weight = torch.Tensor(np.array([0.05, 0.45, 1.3, 0.19, 0.75, 0.09, 0.35, 0.15]))
+        # Old labels: 0=neutral, 1=anger, 2=contempt, 3=disgust, 4=fear, 5=happy, 6=sadness, 7=surprise --> DO NOT USE!
+		# New labels: 0=neutral, 1=happy, 2=sad, 3=surprise, 4=fear, 5=disgust, 6=anger, 7=contempt
+        compensation_weights = torch.Tensor(get_compensation_weights())
         if torch.cuda.is_available() and GPU_Computing:
-            weight = torch.FloatTensor(weight).cuda()
-        self.loss_func = torch.nn.CrossEntropyLoss(weight=weight)
+            compensation_weights = torch.FloatTensor(compensation_weights).cuda()
+        self.loss_func = torch.nn.CrossEntropyLoss(weight=compensation_weights)
 
         self._reset_histories()
 
