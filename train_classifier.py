@@ -35,7 +35,7 @@ def train():
     # val_loader = torch.utils.data.DataLoader(val_data, batch_size=5, shuffle=False,num_workers=2, sampler=OverfitSampler(20))
 
     log_n = 10
-    epochs = 10
+    epochs = 1
 
     print("Training for %d epochs." % epochs)
     model = SimpleEmoClassifier(weight_scale=0.0005)
@@ -43,13 +43,14 @@ def train():
     tic = time.time()
     solver.train(model, train_loader, val_loader, num_epochs=1, log_nth=log_n)
 
-    # after one epoch, datasets have in self.indices a list with all working indices of the picture directory --> use it for a sampler
-    train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=False,
-                                               sampler=data.sampler.SubsetRandomSampler(train_data.indices), num_workers=4)
-    val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False,
-                                             sampler=data.sampler.SubsetRandomSampler(val_data.indices), num_workers=4)
+    if epochs > 1:
+        # after one epoch, datasets have in self.indices a list with all working indices of the picture directory --> use it for a sampler
+        train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=False,
+                                                   sampler=data.sampler.SubsetRandomSampler(train_data.indices), num_workers=4)
+        val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False,
+                                                 sampler=data.sampler.SubsetRandomSampler(val_data.indices), num_workers=4)
 
-    solver.train(model, train_loader, val_loader, num_epochs=epochs - 1, log_nth=log_n)
+        solver.train(model, train_loader, val_loader, num_epochs=epochs - 1, log_nth=log_n)
 
     temp_time = time.time() - tic
     m, s = divmod(temp_time, 60)
