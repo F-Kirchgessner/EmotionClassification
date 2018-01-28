@@ -7,6 +7,8 @@ test_model.pth
 *.*p
 data/**/*.png
 data/**/*.jpg
+data/AN/training_labels.csv
+data/AN/validation_labels.csv
 /data/JAFFE
 /datasets
 /output

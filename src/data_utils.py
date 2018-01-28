@@ -108,7 +108,7 @@ def load_image(data_path, data_filename, dimension, mean, index):
 	if dimension == 1:
 		image = np.array([img, img, img])
 	else:
-		image = np.moveaxis(img, 3, 1)
+		image = np.moveaxis(img, 2, 0)
 	image /= 255.0
 	image -= mean
 	return image, 'False'
