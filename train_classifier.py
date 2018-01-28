@@ -16,6 +16,7 @@ import datetime
 import sys
 import os
 
+
 def train():
     # path of this file
     ABS_PATH = os.path.dirname(os.path.abspath(__file__)) + '/'
@@ -24,11 +25,10 @@ def train():
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
     print("Loading data...")
-	
-	#currently only using AN Dataset
+
+    # currently only using AN Dataset
     train_data, val_data = get_Dataset()
-	
-	
+
     train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=True, num_workers=4)
     val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False, num_workers=4)
     # train_loader = torch.utils.data.DataLoader(train_data, batch_size = 5, shuffle = False, num_workers = 2, sampler = OverfitSampler(50))
@@ -42,11 +42,13 @@ def train():
     tic = time.time()
     solver.train(model, train_loader, val_loader, num_epochs=1, log_nth=log_n)
 
-    #after one epoch, datasets have in self.indices a list with all working indices of the picture directory --> use it for a sampler
-    train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=False, sampler=data.sampler.SubsetRandomSampler(train_data.indices), num_workers=4)
-    val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False, sampler=data.sampler.SubsetRandomSampler(val_data.indices),num_workers=4)
+    # after one epoch, datasets have in self.indices a list with all working indices of the picture directory --> use it for a sampler
+    train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=False,
+                                               sampler=data.sampler.SubsetRandomSampler(train_data.indices), num_workers=4)
+    val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False,
+                                             sampler=data.sampler.SubsetRandomSampler(val_data.indices), num_workers=4)
 
-    solver.train(model, train_loader, val_loader, num_epochs=epochs-1, log_nth=log_n)
+    solver.train(model, train_loader, val_loader, num_epochs=epochs - 1, log_nth=log_n)
 
     temp_time = time.time() - tic
     m, s = divmod(temp_time, 60)
@@ -87,7 +89,7 @@ def train():
     output = model.forward(Variable(torch.Tensor(test_pics).float()).cuda())
     emotions = {0: 'neutral', 1: 'anger', 2: 'contempt', 3: 'disgust', 4: 'fear', 5: 'happy', 6: 'sadness', 7: 'surprise'}
     print('0=neutral, 1=anger, 2=contempt, 3=disgust, 4=fear, 5=happy, 6=sadness, 7=surprise')
-    print(np.argmax(output.data.cpu().numpy(), axis=1, out = np.empty(amount_example_pics, dtype='int64')))
+    print(np.argmax(output.data.cpu().numpy(), axis=1, out=np.empty(amount_example_pics, dtype='int64')))
     print(example_labels)
     output = torch.nn.functional.softmax(output).cpu().data.numpy()
 
