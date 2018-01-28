@@ -17,15 +17,15 @@ def get_Dataset():
 	# use either get_Huge_Dataset(DataSetNamePics, DataSetNameLabels, RGBDimensions, numberTrain) or get_Some_Dataset(DataSetName, numberTrain)
 	# if you don't want to split dataset with get_Huge_Dataset() use for numberTrain = 0
 
-	CK_train, CK_val = get_Huge_Dataset('CK/pics/', 'CK/labels.csv', 1, 1100, False)
-	ISED_train, ISED_val = get_Huge_Dataset('ISED/pics/', 'ISED/labels.csv', 1, 350, False)
+	#CK_train, CK_val = get_Huge_Dataset('CK/pics/', 'CK/labels.csv', 1, 1100, False)
+	#ISED_train, ISED_val = get_Huge_Dataset('ISED/pics/', 'ISED/labels.csv', 1, 350, False)
 	AN_train, AN_val = get_Huge_Dataset('AN/training/', 'AN/training_labels.csv', 3, 0, True), get_Huge_Dataset('AN/validation/', 'AN/validation_labels.csv', 3, 0, True)
 	#CK_train, CK_val = get_Some_Dataset('CK', 1100)
     #ISED_train, ISED_val = get_Some_Dataset('ISED', 350)
-	dataset_train = data.ConcatDataset([CK_train, ISED_train, AN_train])
-	dataset_val = data.ConcatDataset([CK_val, ISED_val, AN_val])
+	#dataset_train = data.ConcatDataset([CK_train, ISED_train, AN_train])
+	#dataset_val = data.ConcatDataset([CK_val, ISED_val, AN_val])
 
-	return dataset_train, dataset_val
+	return AN_train, AN_val
 
 
 def get_Some_Dataset(DataSetName, numberTrain):
@@ -98,14 +98,14 @@ def load_image(data_path, data_filename, dimension, mean, index):
 	try: 	
 		img = np.array(Image.open(data_path + data_filename), dtype=np.float64)
 	except:
-		return index
+		return index, 'True'
 	if dimension == 1:
 		image = np.array([img, img, img])
 	else:
 		image = img
 	image /= 255.0
 	image -= mean
-	return image
+	return image, 'False'
 
 def get_label_index(IndexInPicName, index, data_files, labels):
 	if IndexInPicName:
@@ -129,15 +129,19 @@ class Huge_Dataset(data.Dataset):
 		self.banned_indices = []
 
 	def __getitem__(self, index):		
-		image = load_image(self.data_path, self.data_files[index], self.RGBDimensions, self.mean, index)
-		if image == index and not index in self.banned_indices: #safety first
+		image, error = load_image(self.data_path, self.data_files[index], self.RGBDimensions, self.mean, index)
+		if error and not index in self.banned_indices: #safety first
 			self.banned_indices.append(index)
 			self.banned_indices.sort()
 			#generate random index that has already been used, only going to be called in first epoch
-			rand = random.randint(len(self.indices))
-			image = load_image(self.data_path, self.data_files[self.indices[rand]], self.RGBDimensions, self.mean, indices[rand])
+			try:			
+				rand = random.randint(0, len(self.indices) - 1)
+			except: #if self.indices has no entries yet, just take first element.
+				self.indices.append(0)
+				rand = 0 
+			image = load_image(self.data_path, self.data_files[self.indices[rand]], self.RGBDimensions, self.mean, self.indices[rand])[0]
 			image = torch.from_numpy(image)
-			return image, get_label_index(self.IndexInPicName, indices[rand], self.data_files, self.labels)
+			return image, get_label_index(self.IndexInPicName, self.indices[rand], self.data_files, self.labels)
 			
 		# update mean
 		if not index in self.indices:
