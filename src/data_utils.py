@@ -115,7 +115,7 @@ def load_image(data_path, data_filename, dimension, mean, index):
 def get_label_index(IndexInPicName, index, data_files, labels):
     if IndexInPicName:
         index_from_filename = int(data_files[index].split('.')[0])
-        return labels[index_from_filenames - 1]
+        return labels[index_from_filename - 1]
     else:
         return labels[index]
 
