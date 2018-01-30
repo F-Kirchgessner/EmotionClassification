@@ -1,7 +1,7 @@
 from random import shuffle
 import numpy as np
 import cv2
-from src.weight_compensation import get_compensation_weights
+from src.weight_compensation import get_AN_val_compensation_weights, get_AN_train_compensation_weights
 
 import torch
 from torch.autograd import Variable
