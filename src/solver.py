@@ -98,7 +98,7 @@ class Solver(object):
 
                 optim.zero_grad()
                 outputs = model(inputs)
-                loss = self.loss_func(outputs, targets)
+                loss = self.loss_func_train(outputs, targets)
                 loss.backward()
                 optim.step()
 
@@ -139,7 +139,7 @@ class Solver(object):
                     x, tar = x.cuda(), tar.cuda()
 
                 output = model.forward(x)
-                loss = self.loss_func(output, tar)
+                loss = self.loss_func_val(output, tar)
                 val_losses.append(loss.data.cpu().numpy())
 
                 _, preds = torch.max(output, 1)
