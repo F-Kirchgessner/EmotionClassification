@@ -19,30 +19,30 @@ Contempt=3668 + 495 + 1.3 * (1248 + 428)
 Total=277202 + 3847 + 1248 + 428
 '''
 
+
 def get_AN_train_compensation_weights():
-    Neutral=71687
-    Happiness=131465
-    Sadness=23863
-    Surprise=13510
-    Fear=5960
-    Disgust=3672
-    Anger=23377
-    Contempt=3668
+    Neutral = 71687
+    Happiness = 131465
+    Sadness = 23863
+    Surprise = 13510
+    Fear = 5960
+    Disgust = 3672
+    Anger = 23377
+    Contempt = 3668
 
+    Total = 277202
+    return np.array([Total / Neutral, Total / Happiness, Total / Sadness, Total / Surprise, Total / Fear, Total / Disgust, Total / Anger, Total / Contempt])
 
-    Total=277202
-	return np.array([Total/Neutral, Total/Happiness, Total/Sadness, Total/Surprise, Total/Fear, Total/Disgust, Total/Anger, Total/Contempt])
 
 def get_AN_val_compensation_weights():
-    Neutral=477
-    Happiness=489
-    Sadness=482
-    Surprise=474
-    Fear=469
-    Disgust=486
-    Anger=475
-    Contempt=495
+    Neutral = 477
+    Happiness = 489
+    Sadness = 482
+    Surprise = 474
+    Fear = 469
+    Disgust = 486
+    Anger = 475
+    Contempt = 495
 
-
-    Total=3847
-	return np.array([Total/Neutral, Total/Happiness, Total/Sadness, Total/Surprise, Total/Fear, Total/Disgust, Total/Anger, Total/Contempt])
+    Total = 3847
+    return np.array([Total / Neutral, Total / Happiness, Total / Sadness, Total / Surprise, Total / Fear, Total / Disgust, Total / Anger, Total / Contempt])

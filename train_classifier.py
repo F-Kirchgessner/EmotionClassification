@@ -29,13 +29,13 @@ def train():
     # currently only using AN Dataset
     train_data, val_data = get_Dataset()
 
-    train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=True, num_workers=4)
-    val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False, num_workers=4)
+    train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=True, num_workers=0)
+    val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False, num_workers=0)
     #train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=False, num_workers=4, sampler=OverfitSampler(3000))
     #val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False,num_workers=2, sampler=OverfitSampler(100))
 
     log_n = 1000
-    epochs = 5
+    epochs = 12
 
     print("Training for %d epochs." % epochs)
     model = SimpleEmoClassifier(weight_scale=0.0005)
