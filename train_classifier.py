@@ -46,9 +46,9 @@ def train():
     if epochs > 1:
         # after one epoch, datasets have in self.indices a list with all working indices of the picture directory --> use it for a sampler
         # might not be necessary..if it doesn't work, just use normal dataloaders from above (comment lines below)
-        train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=False,
+        #train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=False,
                                                    sampler=data.sampler.SubsetRandomSampler(train_data.indices), num_workers=4)
-        val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False,
+        #val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False,
                                                  sampler=data.sampler.SubsetRandomSampler(val_data.indices), num_workers=4)
 
         solver.train(model, train_loader, val_loader, num_epochs=epochs - 1, log_nth=log_n)

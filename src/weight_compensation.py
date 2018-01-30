@@ -19,4 +19,4 @@ Total=277202 + 3847 + 1248 + 428
 
 
 def get_compensation_weights():
-	return np.array([Neutral/Total, Happiness/Total, Sadness/Total, Surprise/Total, Fear/Total, Disgust/Total, Anger/Total, Contempt/Total])
+	return np.array([Total/Neutral, Total/Happiness, Total/Sadness, Total/Surprise, Total/Fear, Total/Disgust, Total/Anger, Total/Contempt])
