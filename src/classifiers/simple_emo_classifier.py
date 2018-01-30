@@ -6,10 +6,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
+import torch.nn.functional as F
 import vgg_face_model.base_model as base_model
-
-# labels=np.loadtxt('labels.csv', delimiter=',')
-# labels[1] -> [2,3]
 
 
 class SimpleEmoClassifier(nn.Module):
@@ -20,9 +18,10 @@ class SimpleEmoClassifier(nn.Module):
         for param in self.base.parameters():
             param.requires_grad = False
 
-        self.fc1 = nn.Linear(32768, 300)
-        self.fc2 = nn.Linear(300, 8, bias=True)
+        self.fc1 = nn.Linear(32768, 4096)
+        self.fc2 = nn.Linear(4096, 8)
 
+        nn.init.normal(self.fc2.weight.data, std=weight_scale)
         nn.init.normal(self.fc2.weight.data, std=weight_scale)
 
     def forward(self, x):
@@ -33,7 +32,7 @@ class SimpleEmoClassifier(nn.Module):
         x = x.view(x.size(0), -1)
 
         x = self.fc1(x)
-        x = self.fc2(x)
+        x = self.fc2(F.dropout(F.relu(x), p=0.5))
 
         return x
 

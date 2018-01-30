@@ -1,7 +1,7 @@
 from random import shuffle
 import numpy as np
 import cv2
-from src.weight_compensation import get_AN_train_compensation_weights, get_AN_val_compensation_weights
+from src.weight_compensation import get_compensation_weights
 
 import torch
 from torch.autograd import Variable
@@ -69,8 +69,8 @@ class Solver(object):
         # Logger
         # tensorboard --logdir=runs --reload_interval=5
         numValExamples = 5
-        # old labels
-        emotions = {0: 'neutral', 1: 'anger', 2: 'contempt', 3: 'disgust', 4: 'fear', 5: 'happy', 6: 'sadness', 7: 'surprise'}
+        # New labels: 0=neutral, 1=happy, 2=sad, 3=surprise, 4=fear, 5=disgust, 6=anger, 7=contempt
+        emotions = {0: 'neutral', 1: 'happy', 2: 'sad', 3: 'surprise', 4: 'fear', 5: 'disgust', 6: 'anger', 7: 'contempt'}
         if useTensorboard:
             self.writer = SummaryWriter()
 
@@ -98,7 +98,7 @@ class Solver(object):
 
                 optim.zero_grad()
                 outputs = model(inputs)
-                loss = self.loss_func_train(outputs, targets)
+                loss = self.loss_func(outputs, targets)
                 loss.backward()
                 optim.step()
 
@@ -139,7 +139,7 @@ class Solver(object):
                     x, tar = x.cuda(), tar.cuda()
 
                 output = model.forward(x)
-                loss = self.loss_func_val(output, tar)
+                loss = self.loss_func(output, tar)
                 val_losses.append(loss.data.cpu().numpy())
 
                 _, preds = torch.max(output, 1)

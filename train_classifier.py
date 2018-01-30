@@ -34,24 +34,14 @@ def train():
     #train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=False, num_workers=4, sampler=OverfitSampler(3000))
     #val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False,num_workers=2, sampler=OverfitSampler(100))
 
-    log_n = 10
-    epochs = 1
+    log_n = 1000
+    epochs = 5
 
     print("Training for %d epochs." % epochs)
     model = SimpleEmoClassifier(weight_scale=0.0005)
     solver = Solver(optim_args={'lr': 5e-5})
     tic = time.time()
-    solver.train(model, train_loader, val_loader, num_epochs=1, log_nth=log_n)
-
-    if epochs > 1:
-        # after one epoch, datasets have in self.indices a list with all working indices of the picture directory --> use it for a sampler
-        # might not be necessary..if it doesn't work, just use normal dataloaders from above (comment lines below)
-        #train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=False,
-                                                   sampler=data.sampler.SubsetRandomSampler(train_data.indices), num_workers=4)
-        #val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False,
-                                                 sampler=data.sampler.SubsetRandomSampler(val_data.indices), num_workers=4)
-
-        solver.train(model, train_loader, val_loader, num_epochs=epochs - 1, log_nth=log_n)
+    solver.train(model, train_loader, val_loader, num_epochs=epochs, log_nth=log_n)
 
     temp_time = time.time() - tic
     m, s = divmod(temp_time, 60)
@@ -90,8 +80,8 @@ def train():
     # get_pics might not work! If it doesn't, uncomment the old code.
     test_pics, example_labels, filenames, amount_example_pics = get_pics(train_data, val_data)
     output = model.forward(Variable(torch.Tensor(test_pics).float()).cuda())
-    emotions = {0: 'neutral', 1: 'anger', 2: 'contempt', 3: 'disgust', 4: 'fear', 5: 'happy', 6: 'sadness', 7: 'surprise'}
-    print('0=neutral, 1=anger, 2=contempt, 3=disgust, 4=fear, 5=happy, 6=sadness, 7=surprise')
+    emotions = {0: 'neutral', 1: 'happy', 2: 'sad', 3: 'surprise', 4: 'fear', 5: 'disgust', 6: 'anger', 7: 'contempt'}
+    print('0=neutral, 1=happy, 2=sad, 3=surprise, 4=fear, 5=disgust, 6=anger, 7=contempt')
     print(np.argmax(output.data.cpu().numpy(), axis=1, out=np.empty(amount_example_pics, dtype='int64')))
     print(example_labels)
     output = torch.nn.functional.softmax(output).cpu().data.numpy()
@@ -100,7 +90,7 @@ def train():
     for i in range(amount_example_pics):
         plt.subplot(amount_example_pics, 1, i + 1)
         #plt.legend(loc='upper left')
-        plt.title('%s: Truth=%s, N=%.2e, A=%.2e, C=%.2e, D=%.2e, F=%.2e, H=%.2e, Sad=%.2e, Sur=%.2e' % (filenames[i], emotions[example_labels[i]], list(output[i])[0], list(output[i])[1], list(
+        plt.title('%s: Truth=%s, N=%.2e, H=%.2e, Sad=%.2e, Sur=%.2e, F=%.2e, D=%.2e, A=%.2e, C=%.2e' % (filenames[i], emotions[example_labels[i]], list(output[i])[0], list(output[i])[1], list(
             output[i])[2], list(output[i])[3], list(output[i])[4], list(output[i])[5], list(output[i])[6], list(output[i])[7]))
         plt.imshow(test_pics[i][0])
 
