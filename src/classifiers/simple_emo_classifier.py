@@ -18,8 +18,8 @@ class SimpleEmoClassifier(nn.Module):
         for param in self.base.parameters():
             param.requires_grad = False
 
-        self.fc1 = nn.Linear(32768, 4096)
-        self.fc2 = nn.Linear(4096, 8)
+        self.fc1 = nn.Linear(32768, 100)
+        self.fc2 = nn.Linear(100, 8)
 
         nn.init.normal(self.fc2.weight.data, std=weight_scale)
         nn.init.normal(self.fc2.weight.data, std=weight_scale)
@@ -32,7 +32,8 @@ class SimpleEmoClassifier(nn.Module):
         x = x.view(x.size(0), -1)
 
         x = self.fc1(x)
-        x = self.fc2(F.dropout(F.relu(x), p=0.5))
+        x = self.fc2(x)
+        #x = self.fc2(F.dropout(F.relu(x), p=0.5))
 
         return x
 

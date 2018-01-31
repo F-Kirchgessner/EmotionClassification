@@ -34,8 +34,8 @@ def train():
     #train_loader = torch.utils.data.DataLoader(train_data, batch_size=25, shuffle=False, num_workers=4, sampler=OverfitSampler(3000))
     #val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False,num_workers=2, sampler=OverfitSampler(100))
 
-    log_n = 1000
-    epochs = 12
+    log_n = 100
+    epochs = 5
 
     print("Training for %d epochs." % epochs)
     model = SimpleEmoClassifier(weight_scale=0.0005)
