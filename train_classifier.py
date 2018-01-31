@@ -35,13 +35,14 @@ def train():
     #val_loader = torch.utils.data.DataLoader(val_data, batch_size=25, shuffle=False,num_workers=2, sampler=OverfitSampler(100))
 
     log_n = 100
+    val_n = 1000
     epochs = 5
 
     print("Training for %d epochs." % epochs)
     model = SimpleEmoClassifier(weight_scale=0.0005)
     solver = Solver(optim_args={'lr': 5e-5})
     tic = time.time()
-    solver.train(model, train_loader, val_loader, num_epochs=epochs, log_nth=log_n)
+    solver.train(model, train_loader, val_loader, num_epochs=epochs, log_nth=log_n, val_nth=val_n)
 
     temp_time = time.time() - tic
     m, s = divmod(temp_time, 60)
