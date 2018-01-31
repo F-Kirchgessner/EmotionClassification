@@ -63,7 +63,7 @@ class Solver(object):
         self.val_acc_history = []
         self.val_loss_history = []
 
-    def train(self, model, train_loader, val_loader, num_epochs=10, log_nth=0, val_nth=1000):
+    def train(self, model, train_loader, val_loader, num_epochs=10, log_nth=0, val_nth=0):
         """
         Train a given model with the provided data.
 
@@ -134,7 +134,7 @@ class Solver(object):
                                                                            train_acc,
                                                                            train_loss))
 
-                if log_nth and (i + epoch * iter_per_epoch) % (val_nth) == 0:
+                if val_nth and (i + epoch * iter_per_epoch) % (val_nth) == 0:
                     self.runValidation(model, val_loader, i, epoch, iter_per_epoch, num_epochs)
 
             self.runValidation(model, val_loader, iter_per_epoch, epoch, iter_per_epoch, num_epochs)
