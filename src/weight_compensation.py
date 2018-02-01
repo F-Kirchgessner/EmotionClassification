@@ -30,8 +30,13 @@ def get_AN_train_compensation_weights():
     Anger = 23377
     Contempt = 3668
 
-    Total = 277202
-    return np.array([Total / Neutral, Total / Happiness, Total / Sadness, Total / Surprise, Total / Fear, Total / Disgust, Total / Anger, Total / Contempt])
+    #Total = 277202
+    # return np.array([Total / Neutral, Total / Happiness, Total / Sadness, Total / Surprise, Total / Fear, Total / Disgust, Total / Anger, Total / Contempt])
+
+    w = [Neutral, Happiness, Sadness, Surprise, Fear, Disgust, Anger, Contempt]
+    w = np.sum(w) / np.array(w)
+    w = w / np.max(w)
+    return w
 
 
 def get_AN_val_compensation_weights():
@@ -44,5 +49,10 @@ def get_AN_val_compensation_weights():
     Anger = 475
     Contempt = 495
 
-    Total = 3847
-    return np.array([Total / Neutral, Total / Happiness, Total / Sadness, Total / Surprise, Total / Fear, Total / Disgust, Total / Anger, Total / Contempt])
+    #Total = 3847
+    # return np.array([Total / Neutral, Total / Happiness, Total / Sadness, Total / Surprise, Total / Fear, Total / Disgust, Total / Anger, Total / Contempt])
+
+    w = [Neutral, Happiness, Sadness, Surprise, Fear, Disgust, Anger, Contempt]
+    w = np.sum(w) / np.array(w)
+    w = w / np.max(w)
+    return w
