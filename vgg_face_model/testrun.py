@@ -10,6 +10,7 @@ m1=base_model.base_model
 m2=test_model.test_model
 model=torch.nn.Sequential(m1, m2)
 model.eval()
+m1.eval()
 
 # Load picture and prepare for impact
 pic=scipy.ndimage.imread('candice.png')
@@ -18,10 +19,11 @@ pic = Variable(torch.Tensor(pic.astype(float))) #If error occurs because some el
 pic = pic.permute(0,3,1,2)
 
 # classify picture
-out=model.forward(pic).data.numpy()
+out=m1.forward(pic).data.numpy()
 
 # Get Top 5
 print('\nTop 5:', np.argsort(-out)[:,:5][0])
+print(out.shape)
 # candice.png should put 283 in the top 5
 
 
