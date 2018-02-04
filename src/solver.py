@@ -144,19 +144,19 @@ class Solver(object):
 
                 if val_nth and (i + epoch * iter_per_epoch) % (val_nth) == 0:
                     self.runValidation(model, val_loader, i, epoch, iter_per_epoch, num_epochs)
-
+            self.runValidation(model, train_loader, iter_per_epoch, epoch, iter_per_epoch, num_epochs)
             self.runValidation(model, val_loader, iter_per_epoch, epoch, iter_per_epoch, num_epochs)
             self.saveModel(model, epoch)
             self.savePerformance(epoch)
 
 
-    def runValidation(self, model, val_loader, iter, epoch, iter_per_epoch, num_epochs):
+    def runValidation(self, model, some_loader, iter, epoch, iter_per_epoch, num_epochs):
         # VALIDATION
         val_losses = []
         val_scores = []
         model.eval()
         logOnce = False
-        for inputs, targets in val_loader:
+        for j, (inputs, targets) in enumerate(some_loader, 1):
             x, tar = Variable(inputs.float()), Variable(targets.long())
             if model.is_cuda:
                 x, tar = x.cuda(), tar.cuda()
@@ -177,30 +177,51 @@ class Solver(object):
                 prediction = ''
                 output = output.cpu().data.numpy()
                 preds = preds.cpu().data.numpy()
-
-                for i in range(self.numValExamples):
-                    prediction += '%s: Truth=%s, Pred=%s, N=%.2e, A=%.2e, C=%.2e, D=%.2e, F=%.2e, H=%.2e, Sad=%.2e, Sur=%.2e  \n' % (
-                        i, self.emotions[targets[i]], self.emotions[preds[i]], list(output[i])[0], list(output[i])[1], list(output[i])[2], list(output[i])[3], list(output[i])[4], list(output[i])[5], list(output[i])[6], list(output[i])[7])
-                self.writer.add_text('Validation predictions', prediction, epoch + 1)
-
+                
+                if 'val' in some_loader:
+                    for i in range(self.numValExamples):
+                        prediction += '%s: Truth=%s, Pred=%s, N=%.2e, A=%.2e, C=%.2e, D=%.2e, F=%.2e, H=%.2e, Sad=%.2e, Sur=%.2e  \n' % (
+                            i, self.emotions[targets[i]], self.emotions[preds[i]], list(output[i])[0], list(output[i])[1], list(output[i])[2], list(output[i])[3], list(output[i])[4], list(output[i])[5], list(output[i])[6], list(output[i])[7])
+                    self.writer.add_text('Validation predictions', prediction, epoch + 1)
+             
+            # stop after 4000 pictures (divided by batch size) if train_loader is being used
+            if 'train' in some_loader and j >= (4000 / 25):
+                break   
+                
         model.train()
-        val_acc, val_loss = np.mean(val_scores), np.mean(val_losses)
-        self.val_acc_history.append(val_acc)
-        self.val_loss_history.append(val_loss)
-        if useTensorboard:
-            self.writer.add_scalar('Validation loss', val_loss, iter + epoch * iter_per_epoch)
-            self.writer.add_scalar('Validation accuracy', val_acc, iter + epoch * iter_per_epoch)
+        if 'val' in some_loader:
+            val_acc, val_loss = np.mean(val_scores), np.mean(val_losses)
+            self.val_acc_history.append(val_acc)
+            self.val_loss_history.append(val_loss)
+            if useTensorboard:
+                self.writer.add_scalar('Validation loss', val_loss, iter + epoch * iter_per_epoch)
+                self.writer.add_scalar('Validation accuracy', val_acc, iter + epoch * iter_per_epoch)
 
-            for name, param in model.named_parameters():
-                if not "base" in name:
-                    self.writer.add_histogram(name, param, epoch + 1)
+                for name, param in model.named_parameters():
+                    if not "base" in name:
+                        self.writer.add_histogram(name, param, epoch + 1)
 
-        print('[Iteration %d/%d, Epoch %d/%d] VAL   acc/loss: %.3f/%.3f' % (iter + epoch * iter_per_epoch,
-                                                           iter_per_epoch * num_epochs,
-                                                           epoch + 1,
-                                                           num_epochs,
-                                                           val_acc,
-                                                           val_loss))
+            print('[Iteration %d/%d, Epoch %d/%d] VAL   acc/loss: %.3f/%.3f' % (iter + epoch * iter_per_epoch,
+                                                               iter_per_epoch * num_epochs,
+                                                               epoch + 1,
+                                                               num_epochs,
+                                                               val_acc,
+                                                               val_loss))
+        if 'train' in some_loader:
+            train_acc, train_loss = np.mean(val_scores), np.mean(val_losses)
+            self.train_acc_history.append(train_acc)
+            self.train_loss_history.append(train_loss)
+            if useTensorboard:
+                self.writer.add_scalar('Total Training loss', val_loss, iter + epoch * iter_per_epoch)
+                self.writer.add_scalar('Total Training accuracy', val_acc, iter + epoch * iter_per_epoch)
+
+
+            print('[Iteration %d/%d, Epoch %d/%d] TRAIN   acc/loss: %.3f/%.3f' % (iter + epoch * iter_per_epoch,
+                                                               iter_per_epoch * num_epochs,
+                                                               epoch + 1,
+                                                               num_epochs,
+                                                               train_acc,
+                                                               train_loss))
 
     def savePerformance(self, epochs):
         plt.subplot(2, 1, 1)
