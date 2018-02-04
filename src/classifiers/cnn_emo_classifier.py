@@ -2,6 +2,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import vgg_face_model.base_model as base_model
 
 
 class CNNEmoClassifier(nn.Module):
@@ -16,7 +17,7 @@ class CNNEmoClassifier(nn.Module):
     channels.
     """
 
-    def __init__(self, input_dim=(512, 7, 7), num_filters=128, kernel_size=5,
+    def __init__(self, input_dim=(512, 8, 8), num_filters=64, kernel_size=5,
                  weight_scale=0.001, num_classes=8, dropout=0.5, padding=2):   
         """
         Initialize a new network.
@@ -32,6 +33,10 @@ class CNNEmoClassifier(nn.Module):
         super(CNNEmoClassifier, self).__init__()
         channels, height, width = input_dim
         
+        self.base = base_model.base_model
+        for param in self.base.parameters():
+            param.requires_grad = False
+
         #use pytorchs conv2d layer, what is output channels --> number of filters??!!, dim(w1) = (F, C, HH, WW)
         self.conv1 = nn.Conv2d(channels, num_filters, kernel_size, bias = True, padding=padding)
         nn.init.normal(self.conv1.weight.data, std = weight_scale)
@@ -61,7 +66,10 @@ class CNNEmoClassifier(nn.Module):
         Inputs:
         - x: PyTorch input Variable
         """
-        
+        x.data = x.data.float()
+        x = self.base.forward(x)
+        x.data = x.data.float()
+
         x = self.conv1(x)
         x = F.relu(x)     
         

@@ -48,6 +48,7 @@ class Solver(object):
 
         # Logger
         # tensorboard --logdir=runs --reload_interval=5
+        # ssh -L 16006:127.0.0.1:6006 clientname@serverip
         self.numValExamples = 5
         # New labels: 0=neutral, 1=happy, 2=sad, 3=surprise, 4=fear, 5=disgust, 6=anger, 7=contempt
         self.emotions = {0: 'neutral', 1: 'happy', 2: 'sad', 3: 'surprise', 4: 'fear', 5: 'disgust', 6: 'anger', 7: 'contempt'}
