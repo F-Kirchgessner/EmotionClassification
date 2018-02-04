@@ -79,7 +79,7 @@ def runSingleImage(cameraPort, modelPath, predictorPath):
     cv2.waitKey(0)
     
     
-def runRealtimeStream(cameraPort, modelPath, predictorPath):
+def runRealtimeStream(cameraPort, modelPath, predictorPath, numProcesses = 4):
     # Preload
     model = None
     try:
@@ -98,8 +98,9 @@ def runRealtimeStream(cameraPort, modelPath, predictorPath):
 
     manager = multiprocessing.Manager()
     results = manager.list()
+    numRunningProc = manager.Value('i', 0)
     for i in range(5):
-        results.append([True, None])
+        results.append([0, None])
 
     while True:
         image = vc.read()
@@ -109,9 +110,10 @@ def runRealtimeStream(cameraPort, modelPath, predictorPath):
 
         # Create CNN processes
         for i in range(len(frames)):
-            if results[i][0]:
-                results[i] = [False] + results[i][1:]
-                p = multiprocessing.Process(target=runCNN, args=(imagesAligned[i], model, i, results))
+            if results[i][0] == 0 or numRunningProc.value < numProcesses:
+                numRunningProc.value = numRunningProc.value + 1
+                results[i] = [results[i][0] + 1] + results[i][1:]
+                p = multiprocessing.Process(target=runCNN, args=(imagesAligned[i], model, i, results, numRunningProc))
                 p.start()
             
         # Add rectangle and text
@@ -133,7 +135,7 @@ def runRealtimeStream(cameraPort, modelPath, predictorPath):
     cv2.destroyWindow("Emotion Classification")
 
 
-def runCNN(img, model, faceId, results):
+def runCNN(img, model, faceId, results, numRunningProc):
     img = img[np.newaxis,:,:,:]
     img = Variable(torch.Tensor(img.astype(float)))
     img = img.permute(0,3,1,2)
@@ -143,11 +145,12 @@ def runCNN(img, model, faceId, results):
     #Get results
     emotions = np.argsort(-out)[0]
     percentages = -np.sort(-out)[0]
-    tempResults = [True]
+    tempResults = [results[faceId][0] - 1]
 
     for i in range(3):
         tempResults.append((emotions[i], percentages[i] - percentages[-1]))
     
+    numRunningProc.value = numRunningProc.value - 1
     results[faceId] = tempResults
 
 
@@ -166,11 +169,12 @@ def createDisplayText(results):
 if __name__ == "__main__":
     # WSettings
     cameraPort = 0
+    numProcesses = 4
     modelPath = "models/model_2018-02-03_05-09-37_e6.model"
     predictorPath = "data/shape_predictor_68_face_landmarks.dat"
 
     #runSingleImage(cameraPort, modelPath, predictorPath, emotions)
-    runRealtimeStream(cameraPort, modelPath, predictorPath)
+    runRealtimeStream(cameraPort, modelPath, predictorPath, numProcesses)
 
 
 
