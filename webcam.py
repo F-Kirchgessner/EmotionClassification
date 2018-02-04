@@ -174,7 +174,7 @@ if __name__ == "__main__":
     cameraPort = 0
     numProcesses = 2
     maxFaces = 5
-    modelPath = "models/model_2018-02-04_14-09-33_e3.model"
+    modelPath = "models/model_2018-02-04_22-55-40_e9.model"
     predictorPath = "data/shape_predictor_68_face_landmarks.dat"
 
     #runSingleImage(cameraPort, modelPath, predictorPath, emotions)
