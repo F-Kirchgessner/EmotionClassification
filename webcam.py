@@ -79,7 +79,7 @@ def runSingleImage(cameraPort, modelPath, predictorPath):
     cv2.waitKey(0)
     
     
-def runRealtimeStream(cameraPort, modelPath, predictorPath, numProcesses = 4):
+def runRealtimeStream(cameraPort, modelPath, predictorPath, numProcesses = 4, maxFaces = 5):
     # Preload
     model = None
     try:
@@ -99,7 +99,7 @@ def runRealtimeStream(cameraPort, modelPath, predictorPath, numProcesses = 4):
     manager = multiprocessing.Manager()
     results = manager.list()
     numRunningProc = manager.Value('i', 0)
-    for i in range(5):
+    for i in range(maxFaces):
         results.append([0, None])
 
     while True:
@@ -110,6 +110,9 @@ def runRealtimeStream(cameraPort, modelPath, predictorPath, numProcesses = 4):
 
         # Create CNN processes
         for i in range(len(frames)):
+            if i >= maxFaces:
+                break
+
             if results[i][0] == 0 or numRunningProc.value < numProcesses:
                 numRunningProc.value = numRunningProc.value + 1
                 results[i] = [results[i][0] + 1] + results[i][1:]
@@ -170,11 +173,12 @@ if __name__ == "__main__":
     # WSettings
     cameraPort = 0
     numProcesses = 2
+    maxFaces = 5
     modelPath = "models/model_2018-02-04_14-09-33_e3.model"
     predictorPath = "data/shape_predictor_68_face_landmarks.dat"
 
     #runSingleImage(cameraPort, modelPath, predictorPath, emotions)
-    runRealtimeStream(cameraPort, modelPath, predictorPath, numProcesses)
+    runRealtimeStream(cameraPort, modelPath, predictorPath, numProcesses, maxFaces)
 
 
 
