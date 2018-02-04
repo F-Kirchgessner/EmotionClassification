@@ -169,8 +169,8 @@ def createDisplayText(results):
 if __name__ == "__main__":
     # WSettings
     cameraPort = 0
-    numProcesses = 4
-    modelPath = "models/model_2018-02-03_05-09-37_e6.model"
+    numProcesses = 2
+    modelPath = "models/model_2018-02-04_14-09-33_e3.model"
     predictorPath = "data/shape_predictor_68_face_landmarks.dat"
 
     #runSingleImage(cameraPort, modelPath, predictorPath, emotions)

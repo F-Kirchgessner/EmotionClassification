@@ -17,8 +17,8 @@ class CNNEmoClassifier(nn.Module):
     channels.
     """
 
-    def __init__(self, input_dim=(512, 8, 8), num_filters=64, kernel_size=5,
-                 weight_scale=0.001, num_classes=8, dropout=0.5, padding=2):   
+    def __init__(self, input_dim=(512, 8, 8), num_filters=32, kernel_size=5,
+                 weight_scale=0.001, num_classes=8, dropout=0, padding=2):   
         """
         Initialize a new network.
 
