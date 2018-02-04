@@ -150,7 +150,7 @@ def runCNN(img, model, faceId, results):
 
 
 def createDisplayText(results):
-    emotions = {0: 'neutral', 1: 'anger', 2: 'contempt', 3: 'disgust', 4: 'fear', 5: 'happy', 6: 'sadness', 7: 'surprise'}
+    emotions = {0: 'neutral', 1: 'happy', 2: 'sad', 3: 'surprise', 4: 'fear', 5: 'disgust', 6: 'anger', 7: 'contempt'}
     totalScore = sum([res[1] for res in results if res != None])
     text = []
 
@@ -164,7 +164,7 @@ def createDisplayText(results):
 if __name__ == "__main__":
     # WSettings
     cameraPort = 1
-    modelPath = "models/Basic_300.model"
+    modelPath = "models/model_2018-02-03_05-09-37_e6.model"
     predictorPath = "data/shape_predictor_68_face_landmarks.dat"
 
     #runSingleImage(cameraPort, modelPath, predictorPath, emotions)
