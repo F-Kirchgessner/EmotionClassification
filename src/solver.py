@@ -8,11 +8,18 @@ import torch
 from torch.autograd import Variable
 import torchvision
 
-useTensorboard = True
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+useTensorboard = False
 
 # For people that have their torch.cuda.is_available() = True, yet their GPU is too old...SAD!
 # IMPORTANT: Remember to set TRUE when needed!!!
 GPU_Computing = True
+
+# path of this file
+ABS_PATH = os.path.dirname(os.path.abspath(__file__)) + '/'
 
 try:
     from tensorboardX import SummaryWriter
@@ -140,6 +147,7 @@ class Solver(object):
 
             self.runValidation(model, val_loader, iter_per_epoch, epoch, iter_per_epoch, num_epochs)
             self.saveModel(model, epoch)
+            self.savePerformance(epoch)
 
 
     def runValidation(self, model, val_loader, iter, epoch, iter_per_epoch, num_epochs):
@@ -194,6 +202,29 @@ class Solver(object):
                                                            val_acc,
                                                            val_loss))
 
+    def savePerformance(self, epochs):
+        plt.subplot(2, 1, 1)
+        plt.plot(self.train_loss_history, '-', label='train_loss')
+        x = np.linspace(0, len(self.train_loss_history), len(self.val_loss_history))
+        plt.plot(x, self.val_loss_history, '-o', label='val_loss')
+        plt.legend(loc='upper right')
+        plt.title('Training vs Validation loss | %d Epochs' % epochs)
+        plt.xlabel('iteration')
+        plt.ylabel('loss')
+
+        plt.subplot(2, 1, 2)
+        plt.plot(self.train_acc_history, '-o', label='train_acc=%.4f' % (self.train_acc_history[-1]))
+        plt.plot(self.val_acc_history, '-o', label='val_acc=%.4f' % (self.val_acc_history[-1]))
+        plt.legend(loc='upper left')
+        plt.title('Training vs Validation accuracy')
+        plt.xlabel('epoch')
+        plt.ylabel('accuracy')
+        plt.gca().yaxis.grid(True)
+
+        plt.gcf().set_size_inches(15, 15)
+        plt.tight_layout()
+        plt.savefig(ABS_PATH + '../output/performance_{}.png'.format(timestamp))
+        plt.gcf().clear()
 
     def saveModel(self, model, epoch):
         # Save model after each epoch

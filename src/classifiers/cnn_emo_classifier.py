@@ -32,6 +32,10 @@ class CNNEmoClassifier(nn.Module):
         """
         super(CNNEmoClassifier, self).__init__()
         channels, height, width = input_dim
+    
+        self.base = base_model.base_model
+        for param in self.base.parameters():
+            param.requires_grad = False
         
         self.base = base_model.base_model
         for param in self.base.parameters():
@@ -43,7 +47,7 @@ class CNNEmoClassifier(nn.Module):
              
         #input dim (Height, width) are dependent of padding and kernel size, ignoring stride and dilation
         height = height + 2*padding - (kernel_size - 1)
-        weight = weight + 2*padding - (kernel_size - 1)
+        width = width + 2*padding - (kernel_size - 1)
         fc_dim = num_filters * height * width 
         
         #dropout operation, relu again has no parameters
@@ -72,7 +76,7 @@ class CNNEmoClassifier(nn.Module):
 
         x = self.conv1(x)
         x = F.relu(x)     
-        
+        print(x.shape)
         
         #flatten x, except first dim --> num_images
         x = x.view(x.data.shape[0], -1)
