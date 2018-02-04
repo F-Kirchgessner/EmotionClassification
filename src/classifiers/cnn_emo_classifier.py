@@ -36,10 +36,6 @@ class CNNEmoClassifier(nn.Module):
         self.base = base_model.base_model
         for param in self.base.parameters():
             param.requires_grad = False
-        
-        self.base = base_model.base_model
-        for param in self.base.parameters():
-            param.requires_grad = False
 
         #use pytorchs conv2d layer, what is output channels --> number of filters??!!, dim(w1) = (F, C, HH, WW)
         self.conv1 = nn.Conv2d(channels, num_filters, kernel_size, bias = True, padding=padding)
@@ -75,8 +71,7 @@ class CNNEmoClassifier(nn.Module):
         x.data = x.data.float()
 
         x = self.conv1(x)
-        x = F.relu(x)     
-        print(x.shape)
+        x = F.relu(x)
         
         #flatten x, except first dim --> num_images
         x = x.view(x.data.shape[0], -1)

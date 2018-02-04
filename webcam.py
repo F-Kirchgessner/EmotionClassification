@@ -64,6 +64,7 @@ def takeSingleImage(cameraPort, adjustmentFrames=30):
 def runSingleImage(cameraPort, modelPath, predictorPath):
     # Preload
     model = torch.load(modelPath)
+    model.cpu()
     model.eval()
     detector = dlib.get_frontal_face_detector()
     shapePredictor = dlib.shape_predictor(predictorPath)
@@ -86,6 +87,7 @@ def runRealtimeStream(cameraPort, modelPath, predictorPath):
     except:
         model = torch.load(modelPath, map_location=lambda storage, loc: storage)
 
+    model.cpu()
     model.eval()
     detector = dlib.get_frontal_face_detector()
     shapePredictor = dlib.shape_predictor(predictorPath)
@@ -133,7 +135,7 @@ def runRealtimeStream(cameraPort, modelPath, predictorPath):
 
 def runCNN(img, model, faceId, results):
     img = img[np.newaxis,:,:,:]
-    img = Variable(torch.Tensor(img))
+    img = Variable(torch.Tensor(img.astype(float)))
     img = img.permute(0,3,1,2)
     
     out = model.forward(img).data.numpy()
@@ -163,7 +165,7 @@ def createDisplayText(results):
 
 if __name__ == "__main__":
     # WSettings
-    cameraPort = 1
+    cameraPort = 0
     modelPath = "models/model_2018-02-03_05-09-37_e6.model"
     predictorPath = "data/shape_predictor_68_face_landmarks.dat"
 
