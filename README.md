@@ -1,5 +1,10 @@
 # EmotionClassification
  
+## How to use
+Execute webcam.py to use (near) real time emotion classification. If it doesn't work, you might need to change the cameraPort in webcam.py to 1 or another value than 0.
+
+
+
 ## Introduction
 State-of-the-art face detection algorithms have become widely available, which raises the desire to be able to recognize and classify emotions as well. In this project, we seek to further this field of interest. Our goal is to build a pipeline that receives video sequences as input and extracts the faces at regular time-steps to classify the emotions of those faces. Finally, overlaying the video with boundary boxes and emotion classification of the faces on a nearly frame-by-frame basis.
 
@@ -20,3 +25,4 @@ We intend to use the Google Cloud Platform to train our network on the GPU.
 We seek to extract faces from the input video frames and classify their emotions with our convolutional neural network. Configuring the network architecture on top of a pretrained model and training the network will be the core of this project. In the end, we want to output the input video with boundary boxes around the faces with frame-by-frame classified emotions.
 
 Additionally, we could try to improve our emotion classification accuracy by leveraging the temporal correlation of the input videos using popular recurrent methods on top of our existing network. On top of that, we might try to implement real-time inference of our network.
+
