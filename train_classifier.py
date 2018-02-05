@@ -8,6 +8,7 @@ import torch.utils.data as data
 
 from src.data_utils import get_Dataset, OverfitSampler, get_pics
 from src.classifiers.simple_emo_classifier import SimpleEmoClassifier
+from src.classifiers.cnn_emo_classifier import CNNEmoClassifier
 #from src.classifiers.landmark_emo_classifier import LandmarkEmoClassifier
 from src.solver import Solver
 
@@ -39,7 +40,7 @@ def train():
     val_n = 0       # Run validation every x iterations (default: off/0)
 
     print("Training for %d epochs." % epochs)
-    model = SimpleEmoClassifier(weight_scale=0.0005)
+    model = CNNEmoClassifier(weight_scale=0.0005)
     solver = Solver(optim_args={'lr': 5e-5})
     tic = time.time()
     solver.train(model, train_loader, val_loader, num_epochs=epochs, log_nth=log_n, val_nth=val_n)
